@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- 
+Copyright 2015 Tremolo Security, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:x_rt="http://java.sun.com/jstl/xml_rt"
+	xmlns:c_rt="http://java.sun.com/jstl/core_rt"
+	xmlns:fmt_rt="http://java.sun.com/jstl/fmt_rt"
+	xmlns:sql="http://java.sun.com/jstl/sql"
+	xmlns:x="http://java.sun.com/jsp/jstl/xml"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:permittedTaglibs="http://jakarta.apache.org/taglibs/standard/permittedTaglibs"
+	xmlns:scriptfree="http://jakarta.apache.org/taglibs/standard/scriptfree">
+<h:head>
+	    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tremolo Security Scale - <ui:insert name="windowTitle"/></title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <h:panelGroup rendered="${commonUiHelper.isIE9()}">
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   </h:panelGroup>
+    
+</h:head>
+<h:body> 
+    <div class="container">
+
+      <!-- Static navbar -->
+      <div class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <img class="hidden-xs" src="images/logo-desktop.png"  width="85%" />
+            <img class="visible-xs img-responsive" src="images/logo-mobile.png"  />
+          </div>
+          <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="#{uiHelper.generateActiveHighlight('user')}" ><a href="user.xhtml">#{scaleUser.displayName}</a></li>
+              <li class="#{uiHelper.generateActiveHighlight('home')}" ><a href="#{scaleConfiguration.rawConfig.uiConfig.homeURL}">Home</a></li>
+              <!-- <li><a href="applications.html">Applications</a></li>  -->
+              <li class="#{uiHelper.generateActiveHighlight('requestaccess')}"><a href="requestaccess.xhtml">Request Access</a></li>
+              <li class="#{uiHelper.generateActiveHighlight('cart')}"><a href="cart.xhtml" >Check Out
+              	<h:panelGroup rendered="#{not empty scaleUser.cart}">
+              		<span class="badge alert-danger">${scaleUser.cart.size()}</span>
+              	</h:panelGroup>
+              	</a>
+              </li>
+              <li class="#{uiHelper.generateActiveHighlight('approvals')}"><h:panelGroup rendered="#{openApprovals.numberOfOpenApprovals > 0}">
+              <a href="approvals.xhtml">Open Approvals 
+              
+              		<span class="badge alert-danger">${openApprovals.numberOfOpenApprovals}</span></a>
+              	</h:panelGroup>
+              
+              </li>
+              <!-- <li><a href="requests.html">Requests <span class="badge alert-success">2</span> <span class="badge">3</span></a></li>  -->
+              <!-- <li><a href="reports.html">Reports</a></li>  -->
+              <li class="#{uiHelper.generateActiveHighlight('logout')}"><a href="logout.xhtml">Logout</a></li>
+            </ul>
+              
+          </div><!--/.nav-collapse -->
+        </div><!--/.container-fluid -->
+      </div>
+    
+      <div class="jumbotron">
+        <h2><ui:insert name="pageTitle"/></h2>
+        <ui:insert name="pageContent"/>
+
+      </div>
+	</div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+</h:body>
+</html>

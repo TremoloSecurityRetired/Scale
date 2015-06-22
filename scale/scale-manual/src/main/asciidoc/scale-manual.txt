@@ -1,0 +1,724 @@
+= Tremolo Security Scale Configuration & Deployment
+Tremolo Security, Inc
+v1.0.6, 2015-06-14
+:toc: left
+:source-highlighter: coderay
+
+Copyright 2015, Tremolo Security, Inc.
+
+== Introduction
+
+Tremolo Security's Scale provides a web interface for using Unison's identity provisioning web services.  Using Scale
+you can quickly setup an IDentity as a Service (IDaaS) for either a single application or an entire enterprise.  Scale 
+provides interfaces for:
+
+* Updating a user profile
+* Requesting access to resources
+* Approving access requests
+* Provide links to applications users are authorized for
+* Password reset
+* User self registration
+* Retrieving a TOTP token
+
+.Scale Basic Architecture
+image:images/scale_architecture.png[Scale Architecture]
+
+A complete Scale deployment has the following components:
+
+[options="header"]
+|=======================
+|Component|Role
+|Unison|Provides authentication for the Scale and Jasper Report Server applications, web services and provisioning services
+|Audit Database|SQL database for storing audit data
+|Jasper Report Server|Provides reports out of the audit database
+|Scale|Provides the user interface for Unison services
+|=======================
+
+The Jasper Report Server is optional.  Unison uses a simple schema for reporting, so any report system can be used.  Jasper
+is used as an example as it is easy to deploy and is open source.
+
+Scale isn't a single application, but rather a collection of applications designed to use Unison's provisioning services.  Each
+application has a specific role and can be deployed on its own.  For instance an enterprise might not have a reason for users
+to register since all users might already be in Active Directory.  This makes it very easy to deploy only the parts of Scale
+that you need.
+
+== How To Get Started
+
+All of the Scale applications follow the same general model for deployment.  This section will cover the generic deployment 
+steps, where as each application will also cover the individual configuration options for that application.
+
+=== Prerequisites
+
+Before deploying Scale, you'll need to have the following at a minimum:
+
+[options="header"]
+|=======================
+|Machine|Components
+|Unison|Unison 1.0.6+
+|Scale|JBoss Application Server 7.1 or JBoss EAP 6.x, a relational database such as MySQL
+|Development Workstation|Maven
+|=======================
+
+If deploying Jasper Report Server, it can be deployed in the same container as Scale.
+
+=== Deployment Workflow
+
+.Scale Deployment Workflow
+image:images/deployment_flow.png[Scale Deployment Workflow]
+
+Deploying Scale is a very straightforward process.  Tremolo Security has made Scale easily deployable using Maven's
+built in "overlay" plugin so you can create implementations that don't require you to manage binaries.  The process is:
+
+. Create a Maven web project, using the application you are extending as a base
+. Create a local XML configurations
+. Generate a keystore for the certificate to use when communicating with Unison
+. Deploy
+
+==== Create a Maven Project
+
+The first step is to create a new maven project.  This can be done with any tool, but if using a command line this command
+will be the simplest way to start:
+
+.Create Simple Maven Project
+[source,bash]
+----
+$ mvn archetype:generate -DgroupId=com.mycompany.scale -DartifactId=scale -DinteractiveMode=false -DarchetypeArtifactId=maven-archetype-webapp
+$ rm scale/src/main/webapp/index.jsp
+$ rm scale/src/main/webapp/WEB-INF/web.xml
+----
+
+Once the maven project is created, we need to add the overlay to the project.  The maven overlay will let you override the
+base version of Scale without having to download and manage the binaries.  In your pom.xml file:
+
+[source,xml]
+----
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.mycompany.scale</groupId>
+	<artifactId>scale</artifactId>
+	<packaging>war</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>scale Maven Webapp</name>
+	<url>http://maven.apache.org</url>
+
+	<repositories>
+		<repository>
+			<id>Tremolo Security</id>
+			<url>https://www.tremolosecurity.com/nexus/content/repositories/releases/</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		
+		<dependency>
+			<groupId>tremolosecurity-scale</groupId>
+			<artifactId>scale-application</artifactId>
+			<version>1.0.6</version>
+			<type>war</type>
+			<scope>runtime</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.jboss.spec.javax.faces</groupId>
+					<artifactId>jboss-jsf-api_2.2_spec</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>tremolosecurity-scale</groupId>
+			<artifactId>scale-application</artifactId>
+			<version>1.0.6</version>
+			<type>pom</type>
+
+
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<finalName>scale</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+
+					<overlays>
+						<overlay>
+							<groupId>tremolosecurity-scale</groupId>
+							<artifactId>scale-application</artifactId>
+
+
+						</overlay>
+					</overlays>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
+----
+
+The following updates were made to the stock pom file that was generated by maven:
+
+. Added the Tremolo Security Nexus repository
+. Added both the Scale web application and Scale classes projects as dependencies
+. Added the Scale web application as a Maven overlay
+
+Finally, create an XML configuration file in the src/main/webapps/WEB-INF called scaleConfig.xml.  See the specific configuration section for each application
+on instructions for which root element to use.  There are several ways to create this file, its recommended to use an XML Schema aware editor.  The schema for the configuration
+file can be easily accessed from https://www.tremolosecurity.com/docs/tremolosecurity-docs/xml/scale/1.0.6/scale-schema.xsd.
+
+=== Create a Certificate
+
+Scale uses TLS authentication to secure the connection between Unison and Scale.  This provides several benefits over a service account using a username and password:
+
+* No password to manage
+* Security is built into transport, so its easier to deploy
+* Certificates generally don't need to be rotated more then once a year, where as password often have to be reset every 30, 60 or 90 days
+
+To create a certificate using the Java keytool:
+
+.Create a Certificate for TLS Authentication
+[source,bash]
+----
+$ cd scale/src/main/webapp/WEB-INF
+$ keytool -genkeypair -keystore scaleKeystore.jks -alias scale-key -sigalg SHA256withRSA -keyalg RSA -keysize 2048 -validity 365 
+Enter keystore password:  
+Re-enter new password: 
+What is your first and last name?
+  [Unknown]:  scale-key
+What is the name of your organizational unit?
+  [Unknown]:  Scale
+What is the name of your organization?
+  [Unknown]:  My Company
+What is the name of your City or Locality?
+  [Unknown]:  Some Town
+What is the name of your State or Province?
+  [Unknown]:  Some State
+What is the two-letter country code for this unit?
+  [Unknown]:  US
+Is CN=scale-key, OU=Scale, O=My Company, L=Some Town, ST=Some State, C=US correct?
+  [no]:  yes
+
+Enter key password for <scale-key>
+	(RETURN if same as keystore password):  
+----
+
+*NOTE:* You MUST use the same password for the keystore and the key.  Make sure to answer the questions from the keytool with answers that are appropriate for
+your organization. 
+
+Once the certificate is generated:
+
+. Export the certificate to a pem or der file
+. Import the certificate into Unison as a Trusted Certificate
+. In the Unison "Manage Web Services" screen, choose this certificate as an allowed certificate
+. Export Unison's certificate for the web services listener (as defined in the "Manage Web Services" screen
+. Import Unison's certificate into scaleKeystore.jks
+
+=== Integrating with Unison
+
+In addition to providing the web services used by Scale, Unison all provides SSO and authentication services.  Scale, a J2EE web application, integrates with Unison
+using the JBoss Last Mile component.  There's no need to download any additional files into the Scale application, but Last Mile system will need to be deployed into JBoss 
+per the documentation on tremolosecurity.com: https://www.tremolosecurity.com/docs/tremolosecurity-docs/1.0.5/integration/webhelp/content/ch02s02s04.html.  
+
+Each application can potentially have its own application or urls in Unison but each one needs to be configured with the Last Mile Security filter and the filter must be configured
+on the Scale maven project (by adding the approriate XML files).
+
+=== Deploying Scale
+
+Once the above steps are completed the war file can be created by using maven:
+
+[source,bash]
+----
+$ mvn package
+----
+
+A war file will be created in the scale/target directory that can be deployed into JBoss directly.
+
+== Scale
+
+Scale is the main application of the Scale system and includes all of the functions you need to build a basic IDaaS for you application or organization.  
+
+=== Maven Artifact ID
+When building a maven project for Scale, allways make sure the "artifactId" references "scale-application" in the dependencies and the overlay.  The pom.xml in the previous
+example is already properly configured for the primary Scale application.
+
+=== Configuring Scale
+
+To configure Scale, create a new XML file using the schema https://www.tremolosecurity.com/docs/tremolosecurity-docs/xml/scale/1.0.6/scale-schema.xsd in your favorite XML editor.  This schema is annotated, so a schema
+aware editor will provide you with the correct tags and attributes as well as inline documentation.  The root element for the main Scale application is ScaleConfig.
+
+The first two child elements of ScaleConfig are serviceConfiguration and UiConfig.  These elements are common to every Scale application.  
+
+The serviceConfiguration tag tells Scale how to communicate with Unison.  This is where you will reference the keystore generated above. A note on the lookupAttributeName: 
+this attribute needs to be unique for the user but does NOT need to be known by the user.  For instance, if your organization generates a globally unique identifier you can
+use that in addition to other common identifiers such as the user's login or email.
+
+The UiConfig tag provides some very basic configuration for the Scale UI:
+
+[options="header"]
+|=======================
+|Attribute|Description
+|displayNameAttribute|The name of the attribute that stores the value to be displayed when referencing the currently logged in user, ie cn or displayName
+|homeURL|The URI or URL of the Scale application
+|=======================
+
+.Example serviceConfiguration and UiConfig
+[source,xml]
+----
+<tns:serviceConfiguration keyStorePassword="password" keyStorePath="WEB-INF/scaleKeystore.jks" unisonURL="https://unison.domain.com:9093/" lookupAttributeName="uid"/>
+<tns:UiConfig displayNameAttribute="cn"  homeURL="/scale/" />
+----
+
+The next element, appUiConfig, is the first element that is specific to the main Scale application. This tag has the following elements:
+[options="header"]
+|=======================
+|Attribute|Description
+|useGenericGroups|If set to true, will look in Unison's virtual directory for any group memberships based on if the user's directory account matches the uniqueMember field of any groupOfUniqueNames objects.  If set to false, Scale will look for an attribute named in groupsAttribute for the user's role information.
+|groupsAttribute|The name of an attribute on the user's directory object, an HTTP Header or an attribute in the session (in that order) that stores the list of roles the user has if useGenericGroups is false.  This is useful when defining roles outside of the main directory's defenition.
+|workflowName|The label to use for Unison workflows in Scale.  For instance if all Unison workflows represent "roles" in your organization use the word "Role".  If they represent applications use the word "Application"
+|=======================
+
+The first child element of appUiConfig is the uiDecisionClass tag.  This tag lets you specify an implementation of the com.tremolosecurity.scale.ui.UiDecisions interface.  Implementing the UiDecisions allows for you
+to add custom decisions into Scale that require more logic then a static yes/no, for instance if users are only allowed to edit their own profile based on a role or other external context you would need to implement
+this interface.  The children of this tag are name/value pairs (a single name can be specified multiple times to have multiple values) that are passed to the class implementation on initialization.  If no decision class is implemented,
+specify com.tremolosecurity.scale.ui.util.DefaultUIDecisions.
+
+The last child of the appUiConfig tag is the frontPage tag.  As the name implies, this tag provides for the customization of the first page users see in Scale.  The frontPage tag has the following attributes:
+[options="header"]
+|=======================
+|Attribute|Description
+|showLinks|If set to true, Scale will show the links that are available to the user from the Portal URLs configuration in Unison
+|showLinkOrgs|if showLinks is true, this attribute will determine of the links shown to the user are organized based on their organization in Unison.  This is useful if there are a large number of links, but can be too much if there aren't a large number of links
+|=======================
+Within the frontPage tag is the title tag and text tag.  The title tag is used as the title of the screen and the page's title in the url bar.  The text tag is used to tell the user any important information such as the 
+reason why this Scale instance is deployed.
+
+.Example appUiConfig
+[source,xml]
+----
+<tns:appUiConfig useGenericGroups="true" groupsAttribute="mailx" workflowName="Role">
+  	<tns:uiDecsionClass className="com.tremolosecurity.scale.testing.TestUIDecisions">
+  		<tns:initParams name="allowEdit" value="true"/>
+  	</tns:uiDecsionClass>
+  	<tns:frontPage showLinks="true" showLinkOrgs="false">
+  		<tns:title>Tremolo Security Scale</tns:title>
+  		<tns:text>
+  			Welcome to your identity portal
+  		</tns:text>
+	</tns:frontPage>
+</tns:appUiConfig>
+----
+
+After appUiConfig comes the userAttributesConfig tag.  This configuration lists all of the attributes that are visible to the user when they click on their profile.  Each attribute can be configured to be editable or
+read only and have certain validation requirements that must be passed if editable.  The only child tag that is allowed is the attribute tag with the following attributes:
+[options="header"]
+|=======================
+|Attribute|Description
+|name|The name of the attribute on the user's object, ie cn
+|label|What will be displayed to the user, ie "Display Name"
+|readOnly|If set to true the user will not be able to edit this field.  If set to false the user will be provided a text box to edit the data
+|required|If readOnly is false, this attribute will determine if the field is required to have some text
+|minSize|If readOnly is false, this attribute determines the minimum number of characters any data must have.  Either don't specify or set to zero for no minimum
+|maxSize|If readOnly is false, this attribute determines the maximum number of characters any data can have.  Either don't specify or set to zero for no maximum
+|regEx|If readOnly is false, this attribute provides for a regular expression that must be matched in order to pass validation.  This is an optional attribute and should not be specified if no validation is needed.
+|regExFailedMsg|If the regEx fails to match, the error message that is displayed to the user
+|=======================
+
+.Example userAttributesConfig
+[source,xml]
+----
+<tns:userAttributesConfig>
+	<tns:attribute name="cn" label="Display Name" readOnly="true"
+		/>
+	<tns:attribute name="uid" label="User Login" readOnly="true" ></tns:attribute>
+	<tns:attribute name="givenName" label="First Name" required="true" minSize="4" maxSize="10" />
+	<tns:attribute name="sn" label="Last Name" required="true"/>
+	<tns:attribute name="mail" label="Email Address" required="true"
+		regEx=".*@.*" regExFailedMsg="Email address must have the correct form (user@server)" />
+</tns:userAttributesConfig>
+----
+  
+The next tag, workflows, has a single attribute.  The saveUserPRofileWorkflowName is the name of the workflow in Unison that will be called when the user updates their profile.  This can be left blank if users are not allowed to edit their profile.
+
+Finally, the approvals tag contains the attributes that will be shown to approvers when they act on an approval request.
+.Example approvals
+[source,xml]
+----
+<tns:approvals>
+	<tns:attributes>
+		<tns:attribute name="cn" label="Display Name" />
+		<tns:attribute name="uid" label="User Login" ></tns:attribute>
+		<tns:attribute name="givenName" label="First Name"  />
+		<tns:attribute name="sn" label="Last Name" />
+		<tns:attribute name="mail" label="Email Address"  />
+	</tns:attributes>
+</tns:approvals>
+----
+
+
+== Scale Set Password
+
+The Scale Password application provides an interface for users to set or reset their passwords depending on how Unison is configured.  In addition to some basic validation, the Scale Password
+application provides the ability to have custom password validation.  Out of the box, Scale Password comes with implementations that do no validation or align with Active Directory's rules
+for passwords.  
+
+=== Maven Artifact ID
+When building a maven project for Scale, allways make sure the "artifactId" references "scale-passwordreset" in the dependencies and the overlay.  The pom.xml in the previous
+example would be updated to replace all instances of "scale-application" with "scale-passwordreset".
+
+=== Configuring Scale Password
+
+To configure Scale Password, create a new XML file using the schema https://www.tremolosecurity.com/docs/tremolosecurity-docs/xml/scale/1.0.6/scale-schema.xsd in your favorite XML editor.  This schema is annotated, so a schema
+aware editor will provide you with the correct tags and attributes as well as inline documentation.  The root element for the main Scale application is ScalePasswordResetConfig.
+
+The first two child elements of ScalePasswordResetConfig are serviceConfiguration and UiConfig.  These elements are common to every Scale application.  
+
+The serviceConfiguration tag tells Scale Password how to communicate with Unison.  This is where you will reference the keystore generated above. A note on the lookupAttributeName: 
+this attribute needs to be unique for the user but does NOT need to be known by the user.  For instance, if your organization generates a globally unique identifier you can
+use that in addition to other common identifiers such as the user's login or email.
+
+The UiConfig tag provides some very basic configuration for the Scale UI:
+
+[options="header"]
+|=======================
+|Attribute|Description
+|displayNameAttribute|The name of the attribute that stores the value to be displayed when referencing the currently logged in user, ie cn or displayName
+|homeURL|The URI or URL of the Scale application
+|=======================
+
+.Example serviceConfiguration and UiConfig
+[source,xml]
+----
+<tns:serviceConfiguration keyStorePassword="password" keyStorePath="WEB-INF/scaleKeystore.jks" unisonURL="https://unison.domain.com:9093/" lookupAttributeName="uid"/>
+<tns:UiConfig displayNameAttribute="cn"  homeURL="/scale/" />
+----
+
+The next tag is the frontPage tag.  As the name implies, this tag provides for the customization of the first page users see in Scale Password.  Within the frontPage tag is the title tag and text tag.  The title tag is 
+used as the title of the screen and the page's title in the url bar.  The text tag is used to tell the user any important information such as the reason why this Scale instance is deployed.
+
+.Example frontPage
+[source,xml]
+----
+<tns:frontPage>
+	<tns:title>Reset Your Password</tns:title>
+	<tns:text>Specify your new password</tns:text>
+</tns:frontPage>
+----
+
+After frontPage comes the attributes tag.  This configuration lists all of the attributes that are available to the password validation process.  The only attribute attributes that are available are:
+[options="header"]
+|=======================
+|Attribute|Description
+|name|The name of the attribute on the user's object, ie cn
+|label|What will be displayed to the user, ie "Display Name"
+|=======================
+
+.Example attributes
+[source,xml]
+----
+<tns:attributes>
+	<tns:attribute name="cn" label="Display Name" />
+	<tns:attribute name="uid" label="User Login"></tns:attribute>
+	<tns:attribute name="givenName" label="First Name" />
+	<tns:attribute name="sn" label="Last Name" />
+	<tns:attribute name="mail" label="Email Address" />
+</tns:attributes>
+----
+  
+Next, the passwordValidation tag tells Scale Password how to validate the user's requested password.  There are two implementations out of the box:
+
+.com.tremolosecurity.scale.passwordreset.validate.BasicValidator
+[options="header"]
+|=======================
+|Attribute|Description
+|minChars|Minimum number of characters required
+|maxChars|Maximum number of characters allowed
+|requireLower|If true, requires at least one lower case character
+|requireUpper|If true, requires at least one upper case character
+|requireNumber|If true, requires at least one number
+|requireSpecial|If true, requires at least one non alphanumeric character
+|minRequirements|The minimum number of the above "require" parameters that must be true to meet the validation requirements
+|=======================
+
+.com.tremolosecurity.scale.passwordreset.validate.ActiveDirectoryValidator
+[options="header"]
+|=======================
+|Attribute|Description
+|minChars|Minimum number of characters required
+|maxChars|Maximum number of characters allowed
+|requireLower|If true, requires at least one lower case character
+|requireUpper|If true, requires at least one upper case character
+|requireNumber|If true, requires at least one number
+|requireSpecial|If true, requires at least one non alphanumeric character
+|minRequirements|The minimum number of the above "require" parameters that must be true to meet the validation requirements
+|attributesToCheck|List of attributes (each attribute has its own instance of this option) to make sure that 3 consecutive characters of the password are contained in
+|=======================
+
+.Example passwordValidation
+[source,xml]
+----
+<tns:passwordValidation className="com.tremolosecurity.scale.passwordreset.validate.ActiveDirectoryValidator">
+	<tns:initParams name="minChars" value="5"/>
+	<tns:initParams name="maxChars" value="8"/>
+	<tns:initParams name="requireLower" value="true"/>
+	<tns:initParams name="requireUpper" value="true"/>
+	<tns:initParams name="requireNumber" value="true"/>
+	<tns:initParams name="requireSpecial" value="true"/>
+	<tns:initParams name="minRequirements" value="3"/>
+	<tns:initParams name="attributesToCheck" value="givenName"/>
+	<tns:initParams name="attributesToCheck" value="sn"/>
+</tns:passwordValidation>
+----
+
+Finally, the workflowName tag's value is the name of the workflow which will store the user's password once validated.
+
+.Example Scale Password Configuration
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ScalePasswordResetConfig xmlns:tns="http://www.tremolosecurity.com/scale"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.tremolosecurity.com/scale ../../../../../scale-config/src/main/resources/xml/scale-passwordreset.xsd ">
+	<tns:serviceConfiguration keyStorePassword="start123"
+		keyStorePath="WEB-INF/testingprov.jks" unisonURL="https://127.0.0.1:9093/"
+		lookupAttributeName="uid" />
+	<tns:UiConfig displayNameAttribute="cn" homeURL="/scale/" />
+	<tns:frontPage>
+		<tns:title>Reset Your Password</tns:title>
+		<tns:text>Specify your new password</tns:text>
+	</tns:frontPage>
+	<tns:attributes>
+		<tns:attribute name="cn" label="Display Name" />
+		<tns:attribute name="uid" label="User Login"></tns:attribute>
+		<tns:attribute name="givenName" label="First Name" />
+		<tns:attribute name="sn" label="Last Name" />
+		<tns:attribute name="mail" label="Email Address" />
+	</tns:attributes>
+	<tns:passwordValidation className="com.tremolosecurity.scale.passwordreset.validate.ActiveDirectoryValidator">
+		<tns:initParams name="minChars" value="5"/>
+		<tns:initParams name="maxChars" value="8"/>
+		<tns:initParams name="requireLower" value="true"/>
+		<tns:initParams name="requireUpper" value="true"/>
+		<tns:initParams name="requireNumber" value="true"/>
+		<tns:initParams name="requireSpecial" value="true"/>
+		<tns:initParams name="minRequirements" value="3"/>
+		<tns:initParams name="attributesToCheck" value="givenName"/>
+		<tns:initParams name="attributesToCheck" value="sn"/>
+	</tns:passwordValidation>
+	<tns:workflowName>SaveUser</tns:workflowName>
+</tns:ScalePasswordResetConfig>
+----
+== Scale Register
+
+The Scale Register application provides an interface for users to register for your system.  This application provides an interface for collecting data about the user, provide validation tools such as reCaptcha and uniqueness
+checking and terms and conditions to accept.
+
+=== Maven Artifact ID
+When building a maven project for Scale Register, allways make sure the "artifactId" references "scale-register" in the dependencies and the overlay.  The pom.xml in the previous
+example would be updated to replace all instances of "scale-application" with "scale-register".
+
+=== Configuring Scale Register
+
+To configure Scale Register, create a new XML file using the schema https://www.tremolosecurity.com/docs/tremolosecurity-docs/xml/scale/1.0.6/scale-schema.xsd in your favorite XML editor.  This schema is annotated, so a schema
+aware editor will provide you with the correct tags and attributes as well as inline documentation.  The root element for the main Scale Register application is ScaleRegisterConfig.
+
+The first two child elements of ScaleRegisterConfig are serviceConfiguration and UiConfig.  These elements are common to every Scale application.  
+
+The serviceConfiguration tag tells Scale Password how to communicate with Unison.  This is where you will reference the keystore generated above. A note on the lookupAttributeName: 
+this attribute needs to be unique for the user but does NOT need to be known by the user.  For instance, if your organization generates a globally unique identifier you can
+use that in addition to other common identifiers such as the user's login or email.
+
+The UiConfig tag provides some very basic configuration for the Scale UI:
+
+[options="header"]
+|=======================
+|Attribute|Description
+|displayNameAttribute|The name of the attribute that stores the value to be displayed when referencing the currently logged in user, ie cn or displayName
+|homeURL|The URI or URL of the Scale application
+|=======================
+
+.Example serviceConfiguration and UiConfig
+[source,xml]
+----
+<tns:serviceConfiguration keyStorePassword="password" keyStorePath="WEB-INF/scaleKeystore.jks" unisonURL="https://unison.domain.com:9093/" lookupAttributeName="uid"/>
+<tns:UiConfig displayNameAttribute="cn"  homeURL="/scale/" />
+----
+
+The next tag is the frontPage tag.  As the name implies, this tag provides for the customization of the first page users see in Scale Password.  Within the frontPage tag is the title tag and text tag.  The title tag is 
+used as the title of the screen and the page's title in the url bar.  The text tag is used to tell the user any important information such as the reason why this Scale instance is deployed.
+
+.Example frontPage
+[source,xml]
+----
+<tns:frontPage>
+	<tns:title>Register</tns:title>
+	<tns:text>Register for this site</tns:text>
+</tns:frontPage>
+----
+
+After frontPage comes the attributes tag.  This will list all of the fields the user can fill in.
+[options="header"]
+|=======================
+|Attribute|Description
+|name|The name of the attribute on the user's object, ie cn
+|label|What will be displayed to the user, ie "Display Name"
+|required|This attribute will determine if the field is required to have some text
+|minSize|This attribute determines the minimum number of characters any data must have.  Either don't specify or set to zero for no minimum
+|maxSize|This attribute determines the maximum number of characters any data can have.  Either don't specify or set to zero for no maximum
+|regEx|This attribute provides for a regular expression that must be matched in order to pass validation.  This is an optional attribute and should not be specified if no validation is needed.
+|regExFailedMsg|If the regEx fails to match, the error message that is displayed to the user
+|controlType|Either text or list.  If text then a text box is displayed.  If list, then a dropdown list is displayed based on the listValue tags that would be a child to this attribute tag
+|=======================
+.Example attributes
+[source,xml]
+----
+<tns:attributes>
+  	<tns:attribute name="sponsor" label="Department" controlType="list" required="true">
+  		<tns:listValue name="Sales" value="sales" />	  		
+  		<tns:listValue name="Marketing" value="marketing" />
+  		<tns:listValue name="Engineering" value="eng" />
+  	</tns:attribute>
+	<tns:attribute name="cn" label="Display Name" required="true" />
+	<tns:attribute name="uid" label="User Login" required="true"></tns:attribute>
+	<tns:attribute name="givenName" label="First Name" required="true" />
+	<tns:attribute name="sn" label="Last Name" required="true" />
+	<tns:attribute name="mail" label="Email Address" required="true" />
+</tns:attributes>
+----
+
+The next tag, termsAndConditions, lets you require the user to accept terms and conditions before being able to register.  If this is not needed, leave this tag empty.  The recaptcha tag has 
+either a true or false value.  If true, then a reCaptcha will be displayed to help make sure whomever is registering is a human rather then a computer.  After recaptcha the uniqueAttribute tag may be listed multiple times for each attribute to check for uniqueness for.  
+
+Finally, the workflowConfiguration tag is used to specify how the registation request will be submitted to Unison.  The com.tremolosecurity.scale.register.SimpleRegisterUser is the only out-of-the-box implementation.  The implementation
+simply calls the specified workflow with a static reason:
+[options="header"]
+|=======================
+|Attribute|Description
+|workflowName|The name of the registration workflow
+|workflowReason|A static reason for the request
+|=======================
+
+.Example ScaleRegisterConfig
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ScaleRegisterConfig xmlns:tns="http://www.tremolosecurity.com/scale"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.tremolosecurity.com/scale ../../../../../scale-config/src/main/resources/xml/scale-passwordreset.xsd ">
+	<tns:serviceConfiguration keyStorePassword="start123"
+		keyStorePath="WEB-INF/testingprov.jks" unisonURL="https://127.0.0.1:9093/"
+		lookupAttributeName="uid" recaptcha="false" />
+	<tns:UiConfig displayNameAttribute="cn" homeURL="/scale/" />
+	<tns:frontPage>
+		<tns:title>Register</tns:title>
+		<tns:text>Register for this site</tns:text>
+	</tns:frontPage>
+	<tns:attributes>
+	  	<tns:attribute name="sponsor" label="Department" controlType="list" required="true">
+	  		<tns:listValue name="Sales" value="sales" />	  		
+	  		<tns:listValue name="Marketing" value="marketing" />
+	  		<tns:listValue name="Engineering" value="eng" />
+	  	</tns:attribute>
+		<tns:attribute name="cn" label="Display Name" required="true" />
+		<tns:attribute name="uid" label="User Login" required="true"></tns:attribute>
+		<tns:attribute name="givenName" label="First Name" required="true" />
+		<tns:attribute name="sn" label="Last Name" required="true" />
+		<tns:attribute name="mail" label="Email Address" required="true" />
+	</tns:attributes>
+	<tns:termsAndConditions>
+		In order to use this site you &lt;b&gt;MUST&lt;/b&gt; accept these terms
+	</tns:termsAndConditions>
+	<tns:recaptcha>true</tns:recaptcha>
+	<tns:uniqueAttribute>mail</tns:uniqueAttribute>
+	<tns:uniqueAttribute>uid</tns:uniqueAttribute>
+	<tns:workflowConfiguration className="com.tremolosecurity.scale.register.SimpleRegisterUser">
+		<tns:initParams name="workflowName" value="AddSite1" />
+		<tns:initParams name="workflowReason" value="website registration" />
+	
+	</tns:workflowConfiguration>
+</tns:ScaleRegisterConfig>
+----
+
+== Scale TOTP Token Retrieval
+
+The Scale TOTP Token Retrieval application provides an interface for users to scan their TOTP tokens into their mobile devices using an application such as Google Authenticator.
+
+=== Maven Artifact ID
+When building a maven project for Scale Register, allways make sure the "artifactId" references "scale-totp" in the dependencies and the overlay.  The pom.xml in the previous
+example would be updated to replace all instances of "scale-application" with "scale-totp".
+
+=== Configuring Scale TOTP Token Retrieval
+
+To configure Scale TOTP Token Retrieval, create a new XML file using the schema https://www.tremolosecurity.com/docs/tremolosecurity-docs/xml/scale/1.0.6/scale-schema.xsd in your favorite XML editor.  This schema is annotated, so a schema
+aware editor will provide you with the correct tags and attributes as well as inline documentation.  The root element for the  Scale TOTP Token Retrieval application is ScaleTOTPConfig.
+
+The first two child elements of ScaleTOTPConfig are serviceConfiguration and UiConfig.  These elements are common to every Scale application.  
+
+The serviceConfiguration tag tells Scale Password how to communicate with Unison.  This is where you will reference the keystore generated above. A note on the lookupAttributeName: 
+this attribute needs to be unique for the user but does NOT need to be known by the user.  For instance, if your organization generates a globally unique identifier you can
+use that in addition to other common identifiers such as the user's login or email.
+
+The UiConfig tag provides some very basic configuration for the Scale UI:
+
+[options="header"]
+|=======================
+|Attribute|Description
+|displayNameAttribute|The name of the attribute that stores the value to be displayed when referencing the currently logged in user, ie cn or displayName
+|homeURL|The URI or URL of the Scale application
+|=======================
+
+.Example serviceConfiguration and UiConfig
+[source,xml]
+----
+<tns:serviceConfiguration keyStorePassword="password" keyStorePath="WEB-INF/scaleKeystore.jks" unisonURL="https://unison.domain.com:9093/" lookupAttributeName="uid"/>
+<tns:UiConfig displayNameAttribute="cn"  homeURL="/scale/" />
+----
+
+The next tag is the frontPage tag.  As the name implies, this tag provides for the customization of the first page users see in Scale Password.  Within the frontPage tag is the title tag and text tag.  The title tag is 
+used as the title of the screen and the page's title in the url bar.  The text tag is used to tell the user any important information such as the reason why this Scale instance is deployed.
+
+.Example frontPage
+[source,xml]
+----
+<tns:frontPage>
+	<tns:title>Authentication Token</tns:title>
+	<tns:text>Use your phone to scan this token</tns:text>
+</tns:frontPage>
+----
+
+After the common configuration elements, the only two tags are decryptionKey and attributeName.  The decryptionKey tag is the base 64 encoded key used to decrypt the TOTP token attribute.  This value can be retreived from the TOTP configuration screen in Unison.  
+The attributeName is the name of the user attribute that has the user's token.
+
+.Example ScaleTOTPConfig
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ScaleTOTPConfig xmlns:tns="http://www.tremolosecurity.com/scale"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.tremolosecurity.com/scale ../../../../../scale-config/src/main/resources/xml/scale-schema.xsd ">
+	<tns:serviceConfiguration keyStorePassword="start123"
+		keyStorePath="WEB-INF/testingprov.jks" unisonURL="https://127.0.0.1:9093/"
+		lookupAttributeName="uid" />
+	<tns:UiConfig displayNameAttribute="cn" homeURL="/scale/" />
+	<tns:frontPage>
+		<tns:title>Authentication Token</tns:title>
+		<tns:text>Use your phone to scan this token</tns:text>
+	</tns:frontPage>
+	<tns:decryptionKey>s4JIMRJWPxPvDU...=</tns:decryptionKey>
+	<tns:attributeName>carLicense</tns:attributeName>
+</tns:ScaleTOTPConfig>
+----

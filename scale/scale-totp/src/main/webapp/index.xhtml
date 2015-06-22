@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:t="http://myfaces.apache.org/tomahawk"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+<f:view>
+<ui:composition template="./masterTemplate.xhtml">
+		<ui:define name="windowTitle">Authneitcation Key</ui:define>
+		<ui:define name="pageTitle">#{scaleCommonConfig.scaleConfig.frontPage.title}</ui:define>
+		<ui:define name="pageContent">
+		<p>#{scaleCommonConfig.scaleConfig.frontPage.text}</p>
+		
+		
+		
+		<h:panelGroup rendered="#{not empty scaleTotpController.error}">
+			<div class="alert alert-danger" role="alert">There was a problem loading your authentication token - #{scaleTotpController.error}</div>
+		</h:panelGroup>
+		
+		<h:panelGroup rendered="#{empty scaleTotpController.error}">
+			<div class="row">
+				<div class="col-md-12">
+					<img src="data:image/png;base64,${scaleTotpController.encodedQRCode}" />
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-2">Key URL</div>
+				<div class="col-md-10">${scaleTotpController.otpURL}</div>
+			</div>
+			
+		</h:panelGroup>
+		</ui:define>
+</ui:composition>
+</f:view>
+</html>

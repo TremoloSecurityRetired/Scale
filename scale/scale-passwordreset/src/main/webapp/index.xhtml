@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- 
+Copyright 2015 Tremolo Security, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:t="http://myfaces.apache.org/tomahawk"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+<f:view>
+<ui:composition template="./masterTemplate.xhtml">
+		<ui:define name="windowTitle">Password Reset</ui:define>
+		<ui:define name="pageTitle">#{scaleCommonConfig.scaleConfig.frontPage.title}</ui:define>
+		<ui:define name="pageContent">
+		<p>#{scaleCommonConfig.scaleConfig.frontPage.text}</p>
+		
+		<h:panelGroup rendered="${scaleResetController.resetSubmitted}">
+			<div class="alert alert-success" role="alert">
+						Your password has been reset.  You may try logging back in.</div>
+		</h:panelGroup>
+		
+		<h:panelGroup rendered="#{scaleResetController.errors != null}">
+			<div class="alert alert-danger" role="alert">
+						
+						
+						<ul>
+							<ui:repeat var="msg" value="#{scaleResetController.errors}">
+								<li>${msg}</li>
+							</ui:repeat>
+						</ul></div>
+		</h:panelGroup>
+		
+		<h:panelGroup rendered="${! scaleResetController.resetSubmitted}">
+			<h:form>
+				<div class="row">
+					<div class="col-md-4">Password</div>
+					
+					<div class="col-md-4"><h:inputSecret value="#{scaleResetController.password1}" /></div>
+				</div>
+				<div class="row">
+					<div class="col-md-4">Validate Password</div>
+					<div class="col-md-4"><h:inputSecret value="#{scaleResetController.password2}" /></div>
+				</div>
+				<div class="row">
+					<h:commandButton class="btn btn-lg btn-primary"
+										action="${scaleResetController.resetPassword()}" value="Reset Password" />
+				</div>
+			</h:form>
+			
+		</h:panelGroup>
+		</ui:define>
+</ui:composition>
+</f:view>
+</html>

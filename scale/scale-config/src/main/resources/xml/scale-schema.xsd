@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Copyright 2015 Tremolo Security, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.tremolosecurity.com/scale"
+	xmlns:tns="http://www.tremolosecurity.com/scale" elementFormDefault="qualified">
+
+
+	<!-- Common Configuration -->
+	<complexType name="ScaleCommonConfigType">
+		<annotation>
+			<documentation>Common configuration for all Scale applications</documentation>
+		</annotation>
+		<sequence>
+			<element name="serviceConfiguration" type="tns:ServicesConfigType"
+				minOccurs="1" maxOccurs="1">
+			</element>
+			<element name="UiConfig" type="tns:UiCommonConfigType"
+				minOccurs="1" maxOccurs="1">
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="ServicesConfigType">
+		<annotation>
+			<documentation>Provides common configuration information to all Scale applications</documentation>
+		</annotation>
+		<attribute name="keyStorePath" type="string" use="required">
+			<annotation>
+				<documentation>Relative path to the keystore used for connecting to Unison.  This key store is also used as a trust store.</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="keyStorePassword" type="string" use="required">
+			<annotation>
+				<documentation>The password for the key store</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="unisonURL" type="string" use="required">
+			<annotation>
+				<documentation>The base URL for Unison with no path.  For instance https://ws.server.com</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="lookupAttributeName" type="string" use="required">
+			<annotation>
+				<documentation>The user's unique attribute used to look them up and perform operations on.</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+
+	<complexType name="InitParamType">
+		<annotation>
+			<documentation>Name/Value pairs for configuration properties</documentation>
+		</annotation>
+		<attribute name="name" type="string" use="required">
+			<annotation>
+				<documentation>Name of the property</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="value" type="string" use="required">
+			<annotation>
+				<documentation>Value of the property</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+
+	<complexType name="NameValueType">
+		<annotation>
+			<documentation>Name/Value pairs for configuration properties</documentation>
+		</annotation>
+		<attribute name="name" type="string">
+		<annotation>
+				<documentation>Name of the property</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="value" type="string">
+		<annotation>
+				<documentation>Value of the property</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+
+	<complexType name="AttributeType">
+		<annotation>
+			<documentation>Defines an attribute in Scale providing both rednering details and validation details</documentation>
+		</annotation>
+		<sequence>
+			<element name="listValue" type="tns:NameValueType" minOccurs="0" maxOccurs="unbounded">
+				<annotation>
+					<documentation>List of values</documentation>
+				</annotation>
+			</element>
+		</sequence>
+		<attribute name="name" type="string" use="required">
+			<annotation>
+				<documentation>Name of the attribute as defined in Unison, ie uid</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="label" type="string" use="required">
+			<annotation>
+				<documentation>The human readable label for this attribute, ie User Login</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="readOnly" type="boolean" default="false">
+			<annotation>
+				<documentation>Determines if the attribute is read only to Scale</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="required" type="boolean" default="true">
+			<annotation>
+				<documentation>If the attribute can be written by Scale, is it required?</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="minSize" type="int" default="0">
+					<annotation>
+				<documentation>If the attribute can be written by Scale, the minimum number of characters</documentation>
+			</annotation>
+		
+		</attribute>
+		<attribute name="maxSize" type="int" default="0">
+					<annotation>
+				<documentation>If the attribute can be written by Scale, the maximum number of characters</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="regEx" type="string">
+					<annotation>
+				<documentation>If the attribute can be written by Scale, a regular expression that can be used to validate the value</documentation>
+			</annotation>
+		
+		</attribute>
+		<attribute name="regExFailedMsg" type="string">
+					<annotation>
+				<documentation>If the attribute can be written by Scale amd regEx is supplied, the error message to display if validation fails</documentation>
+			</annotation>
+		
+		</attribute>
+		<attribute name="controlType" default="text">
+			<annotation>
+				<documentation>The type of control to use to render this attribute</documentation>
+			</annotation>
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="text">
+						<annotation>
+							<documentation>Simple text box</documentation>
+						</annotation>
+					</enumeration>
+					<enumeration value="list">
+						<annotation>
+							<documentation>Drop down list of values</documentation>
+						</annotation>
+					</enumeration>
+					<enumeration value="checkbox">
+						<annotation>
+							<documentation>A checkbox for yes/no values</documentation>
+						</annotation>
+					</enumeration>
+				</restriction>
+			</simpleType>
+		</attribute>
+
+	</complexType>
+
+	<complexType name="UserAttributesConfigType">
+		<annotation>
+			<documentation>List of user attributes for Scale</documentation>
+		</annotation>
+		<sequence>
+			<element name="attribute" type="tns:AttributeType" minOccurs="0"
+				maxOccurs="unbounded"></element>
+		</sequence>
+	</complexType>
+
+	<complexType name="UiCommonConfigType">
+		
+		<attribute name="displayNameAttribute" type="string" use="required" >
+			<annotation>
+				<documentation>Name of the attribute in Unison to represent the user</documentation>
+			</annotation>
+		</attribute>
+
+		<attribute name="homeURL" type="string" use="required" >
+			<annotation>
+				<documentation>Scale's main URL</documentation>
+			</annotation>
+		</attribute>
+
+
+	</complexType>
+
+	<!-- Scale Application -->
+	<complexType name="ScaleConfigType">
+		<annotation>
+			<documentation>Root element for the Scale application</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:ScaleCommonConfigType">
+				<sequence>
+					<element name="appUiConfig" type="tns:AppUiConfigType"
+						minOccurs="1" maxOccurs="1">
+					</element>
+					<element name="userAttributesConfig" type="tns:UserAttributesConfigType"
+						minOccurs="1" maxOccurs="1">
+					</element>
+					<element name="workflows" type="tns:WorkflowsType"
+						minOccurs="1" maxOccurs="1">
+					</element>
+					<element name="approvals" type="tns:ApprovalsType"
+						minOccurs="1" maxOccurs="1">
+					</element>
+				</sequence>
+
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<element name="ScaleConfig" type="tns:ScaleConfigType"></element>
+
+
+
+	<complexType name="AppUiConfigType">
+
+
+		<sequence>
+			<element name="uiDecsionClass" type="tns:UiDecisionClassType"
+				minOccurs="1" maxOccurs="1" >
+				
+			</element>
+			<element name="frontPage" type="tns:FrontPageType" minOccurs="1"
+				maxOccurs="1" />
+			
+			<element name="logoutURL" type="string" minOccurs="1"
+				maxOccurs="1" >
+						<annotation>
+							<documentation>URL to redirect the user to after updating their profile</documentation>
+						</annotation>
+					</element>
+			
+		</sequence>
+		<attribute name="useGenericGroups" type="boolean" use="required">
+			<annotation>
+				<documentation>If set to true, Unison will look up all groups in Unison's virtual directory based on membership in LDAP groupofUniqueNames groups</documentation>
+			</annotation>
+		</attribute>
+
+		<attribute name="groupsAttribute" type="string">
+			<annotation>
+				<documentation>If useGenericGroups is false, the name of the user attribute that contains the user's groups</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="workflowName" type="string" default="Workflow">
+			
+		</attribute>
+
+
+	</complexType>
+
+
+	<complexType name="UiDecisionClassType">
+		<annotation>
+					<documentation>Define a utility class to help control the Scale interface</documentation>
+				</annotation>
+		<sequence>
+			<element name="initParams" type="tns:InitParamType"
+				minOccurs="0" maxOccurs="unbounded">
+			</element>
+		</sequence>
+		<attribute name="className" type="string" use="required">
+			<annotation>
+					<documentation>Implementation of com.tremolosecurity.scale.ui.UiDecisions</documentation>
+				</annotation>
+		</attribute>
+	</complexType>
+
+
+
+	<complexType name="WorkflowsType">
+		<attribute name="saveUserProfileWorkflowName" type="string">
+			<annotation>
+				<documentation>The name of the workflow in Unison used to save the user's profile</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+
+	<complexType name="ApprovalsType">
+		<annotation>
+			<documentation>Attributes listed when reviewing a request for approval</documentation>
+		</annotation>
+		<sequence>
+			<element name="attributes" type="tns:UserAttributesConfigType"
+				minOccurs="1" maxOccurs="1">
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="FrontPageType">
+		<annotation>
+			<documentation>Defines UI customizations for Scale's front page</documentation>
+		</annotation>
+		<sequence>
+			<element name="title" type="string">
+				<annotation>
+					<documentation>Title for the front page</documentation>
+				</annotation>
+			</element>
+			<element name="text" type="string">
+				<annotation>
+					<documentation>Text for the main page</documentation>
+				</annotation>
+			</element>
+		</sequence>
+		<attribute name="showLinks" type="boolean">
+			<annotation>
+				<documentation>If set to true, Scale will load portal links from Unison</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="showLinkOrgs" type="boolean">
+			<annotation>
+				<documentation>If showLinks is set to true, determines if the organization tree should be used to show links or if a simple list should be used.</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+
+	<!-- Password Reset -->
+	<complexType name="ScalePasswordResetConfigType">
+	
+		<complexContent>
+			<extension base="tns:ScaleCommonConfigType">
+				<sequence>
+					<element name="frontPage" type="tns:PwdResetFrontPageType" />
+					<element name="attributes" type="tns:UserAttributesConfigType" />
+					<element name="passwordValidation" type="tns:PwdResetValidation" />
+					<element name="workflowName" type="string" >
+						<annotation>
+							<documentation>The name of the workflow in Unison to use to save the user's password</documentation>
+						</annotation>
+					</element>
+					
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="PwdResetFrontPageType">
+		<sequence>
+			<element name="title" type="string">
+			<annotation>
+					<documentation>Title for the front page</documentation>
+				</annotation>
+			</element>
+			<element name="text" type="string">
+			<annotation>
+					<documentation>Text for the main page</documentation>
+				</annotation>
+			</element>
+		</sequence>
+
+	</complexType>
+
+	<complexType name="PwdResetValidation">
+		<annotation>
+			<documentation>Provides for validation of the user's selected password</documentation>
+		</annotation>
+		<sequence>
+			<element name="initParams" type="tns:InitParamType"
+				minOccurs="0" maxOccurs="unbounded">
+			</element>
+
+		</sequence>
+		<attribute name="className" type="string" >
+			<annotation>
+				<documentation>Implementation of the com.tremolosecurity.scale.passwordreset.PasswordValidator interface</documentation>
+			</annotation>
+		</attribute>
+
+	</complexType>
+
+	<element name="ScalePasswordResetConfig" type="tns:ScalePasswordResetConfigType">
+		<annotation>
+			<documentation>The root element for the Scale password reset application</documentation>
+		</annotation>
+	</element>
+	
+	<!-- Self Registration -->
+	<complexType name="ScaleRegisterConfigType">
+		<complexContent>
+			<extension base="tns:ScaleCommonConfigType">
+				<sequence>
+					<element name="frontPage"
+						type="tns:RegisterFrontPageType" maxOccurs="1" minOccurs="1" />
+					<element name="attributes"
+						type="tns:UserAttributesConfigType" maxOccurs="1" minOccurs="1" />
+
+					<element name="termsAndConditions" type="string"
+						maxOccurs="1" minOccurs="1">
+						<annotation>
+							<documentation>If specified, Scale will deisplay the value of this element and require acceptance from the user prior to registration</documentation>
+						</annotation>
+					</element>
+					<element name="recaptcha" type="boolean"
+						maxOccurs="1" minOccurs="1">
+						<annotation>
+							<documentation>If set to true, Scale will display a reCaptcha and require that the user properly answer it before registering</documentation>
+						</annotation>
+					</element>
+					<element name="uniqueAttribute" type="string"
+						maxOccurs="unbounded" minOccurs="0">
+						<annotation>
+							<documentation>List of attributes in Unison that Scale will verify uniqueness for</documentation>
+						</annotation>
+					</element>
+					<element name="workflowConfiguration" type="tns:RegisterWorkflowType" maxOccurs="1" minOccurs="1"></element>
+				</sequence>
+
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="RegisterFrontPageType">
+	<annotation>
+			<documentation>Defines UI customizations for Scale Registration's front page</documentation>
+		</annotation>
+		<sequence>
+			<element name="title" type="string">
+			
+			<annotation>
+					<documentation>Title for the front page</documentation>
+				</annotation>
+			</element>
+			
+			<element name="text" type="string">
+			<annotation>
+					<documentation>Text for the main page</documentation>
+				</annotation>
+			</element>
+		</sequence>
+
+	</complexType>
+
+	
+	<element name="ScaleRegisterConfig" type="tns:ScaleRegisterConfigType">
+		<annotation>
+					<documentation>The root element for the Scale User Registration application</documentation>
+				</annotation>
+	</element>
+
+
+	
+
+
+	<complexType name="RegisterWorkflowType">
+		<annotation>
+			<documentation>Determine how Scale will register the user</documentation>
+		</annotation>
+		<sequence>
+			<element name="initParams" type="tns:InitParamType"
+				minOccurs="0" maxOccurs="unbounded">
+			</element>
+		</sequence>
+		<attribute name="className" type="string">
+			<annotation>
+				<documentation>Implementation of com.tremolosecurity.scale.register.CreateRegisterUser</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- TOTP -->
+	<complexType name="ScaleTOTPConfigType">
+		<complexContent>
+			<extension base="tns:ScaleCommonConfigType">
+				<sequence>
+					<element name="frontPage"
+						type="tns:TotpFrontPageType" maxOccurs="1" minOccurs="1" />
+					<element name="decryptionKey" type="string" minOccurs="1" maxOccurs="1" >
+						<annotation>
+							<documentation>Base64 encoded AES-256 key used to encrypt and decrypt the user's token</documentation>
+						</annotation>
+					</element>
+					<element name="attributeName" type="string" minOccurs="1" maxOccurs="1" >
+						<annotation>
+							<documentation>The attribute used to store the user's token</documentation>
+						</annotation>
+					</element>
+ 					
+				</sequence>
+
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="TotpFrontPageType">
+	<annotation>
+			<documentation>Defines UI customizations for Scale TOTP's front page</documentation>
+		</annotation>
+		<sequence>
+			<element name="title" type="string">
+			<annotation>
+					<documentation>Title for the front page</documentation>
+				</annotation>
+			
+			</element>
+			<element name="text" type="string">
+			<annotation>
+					<documentation>Text for the main page</documentation>
+				</annotation>
+			
+			</element>
+		</sequence>
+
+	</complexType>
+
+	
+	<element name="ScaleTOTPConfig" type="tns:ScaleTOTPConfigType">
+		<annotation>
+			<documentation>The root element for Scale's TOTP application</documentation>
+		</annotation>
+	</element>
+
+	
+</schema>

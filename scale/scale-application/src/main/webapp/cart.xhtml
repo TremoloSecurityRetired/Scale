@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- 
+Copyright 2015 Tremolo Security, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:t="http://myfaces.apache.org/tomahawk"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+<f:view>
+	<ui:composition template="./masterTemplate.xhtml">
+		<ui:define name="windowTitle">Submit Requests</ui:define>
+		<ui:define name="pageTitle">Submit Requests In Your Cart</ui:define>
+		<ui:define name="pageContent">
+			<script type="text/javascript">
+				function reasonfocus(reason) {
+					if (reason.value == 'Supply Reason') {
+						reason.value = '';
+					}
+				}
+
+				function reasonlosefocus(reason) {
+					if (reason.value.length == 0) {
+						reason.value = 'Supply Reason';
+					}
+				}
+			</script>
+			<h:form>
+				<h:panelGroup rendered="${executeWorkflows.saved}">
+					<div class="alert alert-success" role="alert">
+						<b>${scaleUser.displayName}'s Requests Submitted:</b>
+					<ul>
+							<ui:repeat var="msg" value="#{executeWorkflows.savedRequests}">
+								<li>${msg}</li>
+							</ui:repeat>
+						</ul>
+						</div>
+				</h:panelGroup>
+
+				<h:panelGroup rendered="#{executeWorkflows.error}">
+					<div class="alert alert-danger" role="alert">
+						<b>There was a problem saving ${scaleUser.displayName}'s
+							requests:</b>
+						<ul>
+							<ui:repeat var="msg" value="#{executeWorkflows.errors}">
+								<li>${msg}</li>
+							</ui:repeat>
+						</ul>
+					</div>
+				</h:panelGroup>
+
+				<h:panelGroup rendered="#{empty scaleUser.cart}">
+					<div class="alert alert-info" role="alert">
+						${scaleUser.displayName} does not have any open requests. Click
+						"Request Access" to make requests.</div>
+				</h:panelGroup>
+
+				<h:panelGroup rendered="#{not empty scaleUser.cart}">
+
+
+					<ui:repeat var="wfentry" value="${scaleUser.cartAsList}">
+						<div class="row" style="#{rowRepeat.rowColor}">
+							<div class="col-md-3">
+								<h:commandLink value="Remove From Cart"
+									action="${scaleUser.toggleCart(wfentry.value.wf)}" />
+							</div>
+							<div class="col-md-3">${wfentry.value.wf.label}</div>
+							<div class="col-md-3">${wfentry.value.wf.description}</div>
+							<div class="col-md-3">
+								<h:inputText value="${wfentry.value.reason}"
+									onblur="javascript:reasonlosefocus(this);"
+									onfocus="javascript:reasonfocus(this);" />
+							</div>
+						</div>
+
+					</ui:repeat>
+
+
+					<div class="row">
+						<h:commandButton class="btn btn-lg btn-primary"
+							action="${scaleUser.saveRequests()}" value="Save" />
+					</div>
+
+				</h:panelGroup>
+			</h:form>
+
+
+		</ui:define>
+	</ui:composition>
+</f:view>
+</html>

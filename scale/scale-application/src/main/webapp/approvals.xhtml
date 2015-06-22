@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- 
+Copyright 2015 Tremolo Security, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:t="http://myfaces.apache.org/tomahawk"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+<f:view>
+	<ui:composition template="./masterTemplate.xhtml">
+		<ui:define name="windowTitle">Review Open Approval Requests</ui:define>
+		<ui:define name="pageTitle">Review Open Requests</ui:define>
+		<ui:define name="pageContent">
+		<h:panelGroup rendered="#{approvalReview.complete}">
+					<div class="alert alert-success" role="success">
+						<b>${scaleUser.displayName}'s request submitted</b>
+					</div>
+				</h:panelGroup>
+			<script type="text/javascript">
+				function reasonfocus(reason) {
+					if (reason.value == 'Supply Reason') {
+						reason.value = '';
+					}
+				}
+
+				function reasonlosefocus(reason) {
+					if (reason.value.length == 0) {
+						reason.value = 'Supply Reason';
+					}
+				}
+			</script>
+			<h:form>
+				
+				<h:panelGroup rendered="#{openApprovals.error}">
+					<div class="alert alert-danger" role="alert">
+						<b>There was a problem loading ${scaleUser.displayName}'s
+							open approvals</b>
+						
+					</div>
+				</h:panelGroup>
+
+				<h:panelGroup rendered="#{empty openApprovals.approvals}">
+					<div class="alert alert-info" role="alert">
+						${scaleUser.displayName} does not have any open approvals at this time</div>
+				</h:panelGroup>
+
+				<h:panelGroup rendered="#{not empty openApprovals.approvals}">
+					<h:outputScript>
+						window.addEventListener("resize",setheaders);
+						
+						
+						function togleheaders(val) {
+							var divs = document.getElementsByTagName("span");
+							for (var i=0;i&lt;divs.length;i++) {
+								if (divs[i].id.indexOf('hdr') == 0) {
+									divs[i].style.display = val;
+								}
+							}
+						}
+						
+						function setheaders() {									
+							if (window.outerWidth &lt;= 991) {
+								document.getElementById('tblheader').style.display = 'none';
+								
+								togleheaders('inline');	
+							} else {
+								document.getElementById('tblheader').style.display = 'block';
+								
+								togleheaders('none');
+							}
+						}
+						
+						
+				
+					</h:outputScript>
+					<div class="row" id="tblheader" style="#{rowRepeat.rowColor}">
+							<div class="col-md-2"><b>Action</b></div>
+							<div class="col-md-2"><b>Subject</b></div>
+							<div class="col-md-3"><b>${scaleConfiguration.rawConfig.appUiConfig.workflowName}</b></div>
+							<div class="col-md-3"><b>Request</b></div>
+							<div class="col-md-2"><b>Date Opened</b></div>
+					</div> 
+
+					<!-- 
+						<tr>
+							<th>Action</th>
+							<th>Subject</th>
+							<th>Workflow</th>
+							<th>Request</th>
+							<th>Date Opened</th>
+						</tr>  -->
+
+					<ui:repeat var="approval" value="${openApprovals.approvals}">
+						<div class="row" style="#{rowRepeat.rowColor}">
+							<div class="col-md-2"><h:commandLink value="Review" action="${openApprovals.review(approval)}" /></div>
+							<div class="col-md-2"><span id="hdrSubject"><b>Subject : </b></span>${approval.user}</div>
+							<div class="col-md-3"><span id="hdrWorkflow"><b>${scaleConfiguration.rawConfig.appUiConfig.workflowName} : </b></span>${approval.wfLabel}</div>
+							<div class="col-md-3"><span id="hdrRequest"><b>Request : </b></span>${approval.label}</div>
+							<div class="col-md-2"><span id="hdrDateOpened"><b>Date Opened : </b></span>${openApprovals.formatDate(approval.approvalStart)}</div>
+						</div>
+					</ui:repeat>
+					<h:outputScript>
+						setheaders();
+					</h:outputScript>
+					
+				</h:panelGroup>
+			</h:form>
+
+
+		</ui:define>
+	</ui:composition>
+</f:view>
+</html>

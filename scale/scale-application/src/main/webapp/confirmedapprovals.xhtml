@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- 
+Copyright 2015 Tremolo Security, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:t="http://myfaces.apache.org/tomahawk"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+<f:view>
+	<ui:composition template="./masterTemplate.xhtml">
+		<ui:define name="windowTitle">Confirmed Request for ${approvalReview.userObj.displayName}</ui:define>
+		<ui:define name="pageTitle">Confirmed Request for ${approvalReview.userObj.displayName}</ui:define>
+		<ui:define name="pageContent">
+		
+
+				
+
+				
+				<h:panelGroup rendered="#{approvalReview.complete and ! approvalReview.approved}">
+					<div class="alert alert-danger" role="alert">
+						<b>${approvalReview.userObj.displayName}'s request denied for the following reason : </b> ${approvalReview.reason}
+					</div>
+				</h:panelGroup>
+				
+				<h:panelGroup rendered="#{approvalReview.complete and approvalReview.approved}">
+					<div class="alert alert-success" role="success">
+						<b>${approvalReview.userObj.displayName}'s request approved for the following reason : </b> ${approvalReview.reason}
+					</div>
+				</h:panelGroup>
+				
+				
+			<div class="row">
+				<h3>Request Details</h3>
+				<div class="row">
+					<div class="col-md-4"><b>Subject</b></div>
+					<div class="col-md-8">${approvalReview.userObj.displayName}</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-md-4"><b>${scaleConfiguration.rawConfig.appUiConfig.workflowName} Name</b></div>
+					<div class="col-md-8">${approvalReview.details.wfLabel}</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-md-4"><b>${scaleConfiguration.rawConfig.appUiConfig.workflowName} Description</b></div>
+					<div class="col-md-8">${approvalReview.details.wfDescription}</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-md-4"><b>${scaleConfiguration.rawConfig.appUiConfig.workflowName} Request Started</b></div>
+					<div class="col-md-8">${openApprovals.formatDate(approvalReview.details.wfStart)}</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-md-4"><b>Subject's Request</b></div>
+					<div class="col-md-8">${approvalReview.details.label}</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-md-4"><b>Subject's Request Reason</b></div>
+					<div class="col-md-8">${approvalReview.details.reason}</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-md-4"><b>Approval Opened</b></div>
+					<div class="col-md-8">${openApprovals.formatDate(approvalReview.details.approvalStart)}</div>
+				</div>
+				
+			</div>
+			<div class="row">
+			<h3>Subject Information</h3>
+					<div class="col-md-6">
+						<h4>Attributes</h4>
+
+						
+
+						
+							<ui:repeat var="attr" value="#{approvalReview.userObj.attributes}">
+								<div class="row">
+									<div class="col-md-4"><h:outputLabel>#{attr.label}</h:outputLabel></div>
+									<div class="col-md-4">#{attr.value}</div>
+								</div>
+							</ui:repeat>
+						
+					</div>
+
+
+
+
+					<div class="col-md-6">
+						<h4>Roles</h4>
+						<h:panelGroup rendered="${approvalReview.userObj.groups.size() == 0}">
+							<div class="alert alert-info" role="info">${approvalReview.userObj.displayName}
+								has no roles assigned</div>
+						</h:panelGroup>
+						<h:panelGroup rendered="${approvalReview.userObj.groups.size() > 0}">
+							<ul class="list-group">
+								<ui:repeat var="groupName" value="#{approvalReview.userObj.groups}">
+									<li class="list-group-item">#{groupName}</li>
+								</ui:repeat>
+							</ul>
+						</h:panelGroup>
+					</div>
+				</div>
+				
+				
+		</ui:define>
+	</ui:composition>
+</f:view>
+</html>

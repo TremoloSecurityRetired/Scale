@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- 
+Copyright 2015 Tremolo Security, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<f:view>
+	<ui:composition template="./masterTemplate.xhtml">
+		<ui:define name="windowTitle">#{scaleUser.displayName}'s Profile</ui:define>
+		<ui:define name="pageTitle">#{scaleUser.displayName}'s Profile</ui:define>
+		<ui:define name="pageContent">
+
+			<div class="container">
+				<h:panelGroup rendered="#{saveResults.saved}">
+					<div class="alert alert-success" role="alert">
+						${scaleUser.displayName}'s Profile Successfully Saved</div>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{saveResults.error}">
+					<div class="alert alert-danger" role="alert">
+						<b>There was a problem saving ${scaleUser.displayName}'s
+							profile:</b>
+						<ul>
+							<ui:repeat var="msg" value="#{saveResults.errors}">
+								<li>${msg}</li>
+							</ui:repeat>
+						</ul>
+					</div>
+				</h:panelGroup>
+
+				<div class="row">
+					<div class="col-md-6">
+						<h3>Attributes</h3>
+
+						<h:panelGroup
+							rendered="${scaleConfiguration.uiDecisions.canEditUser()}">
+							<h:form>
+								<f:event type="preRenderView" listener="#{saveUser.preRender}" />
+								<ui:repeat var="attr" value="#{saveUser.attributes}">
+									<div class="row">
+										<div class="col-md-4">#{attr.label}</div>
+										<div class="col-md-4">
+											<h:inputText value="#{attr.value}"
+												rendered="${! scaleConfiguration.attributeData.isReadOnly(attr.name)}" />
+											<h:outputLabel
+												rendered="${scaleConfiguration.attributeData.isReadOnly(attr.name)}">#{attr.value}</h:outputLabel>
+										</div>
+									</div>
+								</ui:repeat>
+								<div class="row">
+									<h:commandButton class="btn btn-lg btn-primary"
+										action="${saveUser.saveUser()}" value="Save" />
+								</div>
+							</h:form>
+						</h:panelGroup>
+
+						<h:panelGroup
+							rendered="${! scaleConfiguration.uiDecisions.canEditUser()}">
+							<ui:repeat var="attr" value="#{scaleUser.attributes}">
+								<div class="row">
+									<div class="col-md-4">#{attr.label}</div>
+									<div class="col-md-4">
+
+										<h:outputLabel>#{attr.value}</h:outputLabel>
+									</div>
+								</div>
+							</ui:repeat>
+						</h:panelGroup>
+					</div>
+
+
+
+
+					<div class="col-md-6">
+						<h3>Roles</h3>
+						<h:panelGroup rendered="${scaleUser.groups.size() == 0}">
+							<div class="alert alert-info" role="info">${scaleUser.displayName}
+								has no roles assigned</div>
+						</h:panelGroup>
+						<h:panelGroup rendered="${scaleUser.groups.size() > 0}">
+							<ul class="list-group">
+								<ui:repeat var="groupName" value="#{scaleUser.groups}">
+									<li class="list-group-item">#{groupName}</li>
+								</ui:repeat>
+							</ul>
+						</h:panelGroup>
+					</div>
+				</div>
+			</div>
+		</ui:define>
+	</ui:composition>
+</f:view>
+</html>

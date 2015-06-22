@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- 
+Copyright 2015 Tremolo Security, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:t="http://myfaces.apache.org/tomahawk"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+<f:view>
+	<ui:composition template="./masterTemplate.xhtml">
+		<ui:define name="windowTitle">Dashboard</ui:define>
+		<ui:define name="pageTitle">${scaleConfiguration.rawConfig.appUiConfig.frontPage.title}</ui:define>
+		<ui:define name="pageContent">
+			<p>${scaleConfiguration.rawConfig.appUiConfig.frontPage.text}</p>
+
+			<h:panelGroup
+				rendered="${scaleConfiguration.rawConfig.appUiConfig.frontPage.isShowLinks()}">
+				<h3>${scaleUser.displayName}'s Applications</h3>
+				<h:form>
+					<h:panelGroup
+						rendered="${scaleConfiguration.rawConfig.appUiConfig.frontPage.isShowLinkOrgs()}">
+						<div class="row">
+							<div class="col-md-6">
+								<t:tree2 value="#{scaleUser.userOrgs}" var="node"
+									varNodeTrigger="t" preserveTogle="true">
+									<f:facet name="org">
+										<h:commandLink value="#{node.description}"
+											action="${scaleUser.chooseOrg(node)}" />
+
+									</f:facet>
+								</t:tree2>
+							</div>
+
+							<div class="col-md-6">
+								<div class="alert alert-info" role="info">
+									<h3>${scaleUser.currentOrg.name}</h3>
+									${scaleUser.currentOrg.description}
+								</div>
+							</div>
+
+						</div>
+
+					</h:panelGroup>
+
+					<div class="row">
+						<ui:repeat var="url"
+							value="${scaleUser.loadPortalURLs(scaleConfiguration.rawConfig.appUiConfig.frontPage.isShowLinkOrgs())}">
+
+							<div class="col-sm-6 col-md-4">
+								<div class="thumbnail" style="background:#eeeeee;">
+									<a href="${url.url}" target="${url.label}"><img
+										src="data:image/png;base64,${url.icon}" /></a>
+									<div class="caption">
+										<center><h3>${url.label}</h3></center>
+									</div>
+								</div>
+							</div>
+
+						</ui:repeat>
+					</div>
+				</h:form>
+			</h:panelGroup>
+		</ui:define>
+	</ui:composition>
+</f:view>
+</html>
