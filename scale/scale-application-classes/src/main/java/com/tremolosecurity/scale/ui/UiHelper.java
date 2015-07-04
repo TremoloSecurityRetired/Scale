@@ -39,7 +39,9 @@ public class UiHelper {
 			return "active";
 		} else if (name.equalsIgnoreCase("logout") && request.getRequestURI().endsWith("logout.xhtml")) {
 			return "active";
-		} else {
+		} else if (name.equalsIgnoreCase("reports") && request.getRequestURI().toLowerCase().contains("report")) {
+			return "active";
+		}else {
 			return "";
 		}
 		
