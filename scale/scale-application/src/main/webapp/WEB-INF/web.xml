@@ -21,6 +21,10 @@ limitations under the License.
     <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
+  <servlet>
+  	<servlet-name>GenerateExcelReport</servlet-name>
+  	<servlet-class>com.tremolosecurity.scale.ui.reports.GenerateSpreadsheet</servlet-class>
+  </servlet>
   <filter>
     <filter-name>MyFacesExtensionsFilter</filter-name>
     <filter-class>org.apache.myfaces.webapp.filter.ExtensionsFilter</filter-class>
@@ -40,6 +44,10 @@ limitations under the License.
   <servlet-mapping>
     <servlet-name>Faces Servlet</servlet-name>
     <url-pattern>*.xhtml</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>GenerateExcelReport</servlet-name>
+  	<url-pattern>*.xlsx</url-pattern>
   </servlet-mapping>
   <welcome-file-list>
     <welcome-file>index.xhtml</welcome-file>

@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- 
+Copyright 2015 Tremolo Security, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:t="http://myfaces.apache.org/tomahawk">
+<f:view>
+	<ui:composition template="./masterTemplate.xhtml">
+		<ui:define name="windowTitle">View Reports</ui:define>
+		<ui:define name="pageTitle">Parameters for #{scaleReport.reportInfo.name}</ui:define>
+		<ui:define name="pageContent">
+			<h:form>
+				<h:panelGroup rendered="#{not empty scaleReport.paramError}">
+				<div class="row">
+					
+					<div class="alert alert-danger" role="alert">
+						<b>Please correct issue : </b> ${scaleReport.paramError}
+					</div>
+				
+				</div>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{scaleReport.userKeyParam}">
+					<div class="row">
+						<div class="col-md-4">User</div>
+						<div class="col-md-8">
+							<h:inputText value="#{scaleReport.userKey}" />
+						</div>
+					</div>
+				</h:panelGroup>
+				
+				<h:panelGroup rendered="#{scaleReport.beginDateParam}">
+					<div class="row">
+						<div class="col-md-2">Begin Date</div>
+						<div class="col-md-2">#{scaleReport.beginDateLabel}</div>
+						<div class="col-md-8">
+							<t:inputCalendar value="#{scaleReport.beginDate}" />
+						</div>
+					</div>
+				</h:panelGroup>
+				
+				<h:panelGroup rendered="#{scaleReport.endDateParam}">
+					<div class="row">
+						<div class="col-md-2">End Date</div>
+						<div class="col-md-2">#{scaleReport.endDateLabel}</div>
+						<div class="col-md-8">
+							<t:inputCalendar value="#{scaleReport.endDate}" />
+						</div>
+					</div>
+				</h:panelGroup>
+
+				<div class="row">
+					<h:commandButton class="btn btn-lg btn-primary"
+						action="${scaleReport.finishReport()}" value="Run Report" />
+				</div>
+			</h:form>
+
+
+		</ui:define>
+	</ui:composition>
+</f:view>
+</html>

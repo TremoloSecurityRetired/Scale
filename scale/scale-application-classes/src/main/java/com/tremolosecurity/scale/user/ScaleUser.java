@@ -69,6 +69,7 @@ import com.tremolosecurity.provisioning.service.util.ApprovalSummary;
 import com.tremolosecurity.provisioning.service.util.Organization;
 import com.tremolosecurity.provisioning.service.util.PortalURL;
 import com.tremolosecurity.provisioning.service.util.ProvisioningResult;
+import com.tremolosecurity.provisioning.service.util.ReportInformation;
 import com.tremolosecurity.provisioning.service.util.TremoloUser;
 import com.tremolosecurity.provisioning.service.util.WFCall;
 import com.tremolosecurity.provisioning.service.util.WFDescription;
@@ -107,6 +108,7 @@ public class ScaleUser {
 	private HashMap<String, List<PortalURL>> urlsByOrgs;
 	private List<PortalURL> portalURLs;
 	private List<PortalURL> currentURLs;
+	private HashMap<String, List<ReportInformation>> reports;
 
 	private ArrayList<ScaleAttribute> attributes;
 
@@ -118,6 +120,7 @@ public class ScaleUser {
 		this.cart = new HashMap<String, WorkflowRequest>();
 		this.urlsByOrgs = new HashMap<String, List<PortalURL>>();
 		this.portalURLs = new ArrayList<PortalURL>();
+		this.reports = new HashMap<String,List<ReportInformation>>();
 	}
 
 	@PostConstruct
@@ -140,6 +143,7 @@ public class ScaleUser {
 			this.orgTree = null;
 	
 			this.loadURLs();
+			this.loadReports();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -183,6 +187,50 @@ public class ScaleUser {
 
 				orgUrls.add(url);
 			}
+		} else {
+			throw new Exception("Error loading portal urls : "
+					+ pres.getError().getError());
+		}
+
+	}
+	
+	private void loadReports() throws Exception {
+		StringBuffer callURL = new StringBuffer();
+		callURL.append(
+				scaleConfig.getRawConfig().getServiceConfiguration()
+						.getUnisonURL()
+						+ "/services/reports/list?uid=")
+				.append(this.login)
+				.append("&uidAttr=")
+				.append(scaleConfig.getRawConfig().getServiceConfiguration()
+						.getLookupAttributeName());
+
+		HttpGet httpget = new HttpGet(callURL.toString());
+
+		HttpResponse response = scaleSession.getHttp().execute(httpget);
+		BufferedReader in = new BufferedReader(new InputStreamReader(response
+				.getEntity().getContent()));
+		String line = null;
+		StringBuffer json = new StringBuffer();
+		while ((line = in.readLine()) != null) {
+			json.append(line);
+		}
+
+		Gson gson = new Gson();
+		ProvisioningResult pres = gson.fromJson(json.toString(),
+				ProvisioningResult.class);
+
+		if (pres.isSuccess()) {
+			for (ReportInformation ri : pres.getReportsList().getReports()) {
+				List<ReportInformation> reports = this.reports.get(ri.getOrgID());
+				if (reports == null) {
+					reports = new ArrayList<ReportInformation>();
+					this.reports.put(ri.getOrgID(), reports);
+				}
+				
+				reports.add(ri);
+			}
+			
 		} else {
 			throw new Exception("Error loading portal urls : "
 					+ pres.getError().getError());
@@ -455,6 +503,11 @@ public class ScaleUser {
 		}
 	}
 
+	
+	public List<ReportInformation> getReports() {
+		return this.reports.get(this.currentOrg.getId());
+	}
+	
 	public Organization getCurrentOrg() {
 		return this.currentOrg;
 	}
@@ -831,5 +884,9 @@ public class ScaleUser {
 
 	public boolean isWorkflowCompleted(String name) {
 		return this.executedWorkflows.contains(name);
+	}
+	
+	public boolean isUserReports() {
+		return ! this.reports.isEmpty();
 	}
 }
