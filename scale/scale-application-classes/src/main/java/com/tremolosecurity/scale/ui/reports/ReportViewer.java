@@ -73,7 +73,7 @@ public class ReportViewer {
 	
 	String runDateTime;
 	
-	private void loadReport() throws ClientProtocolException, IOException {
+	public void loadReport() throws ClientProtocolException, IOException {
 		
 		
 		
@@ -104,7 +104,7 @@ public class ReportViewer {
 			json.append(line);
 		}
 
-		System.out.println("JSON : '" + json + "'");
+		
 		
 		Gson gson = new Gson();
 		ProvisioningResult pres = gson.fromJson(json.toString(),
@@ -135,8 +135,7 @@ public class ReportViewer {
 			
 			if (ri.getParameters().size() == 0 || (ri.getParameters().size() == 1 && ri.getParameters().contains("currentUser"))) {
 				//no need for the parameters screen
-				this.loadReport();
-				return "showReport.xhtml";
+				return "reportWait.xhtml";
 			} else {
 				return "reportParams.xhtml";
 			}
@@ -146,6 +145,8 @@ public class ReportViewer {
 			return "showReport.xhtml";
 		}
 	}
+	
+
 	
 	public String finishReport() {
 		try {
@@ -164,13 +165,13 @@ public class ReportViewer {
 				this.paramError = "End Date is required";
 				return "reportParams.xhtml";
 			}			
-				this.loadReport();
-				return "showReport.xhtml";
+				
+				return "reportWait.xhtml";
 			
 		} catch (Throwable t) {
 			this.error = "There was a problem loading the report";
 			logger.error("Error loading report : " + reportInfo.getName(),t);
-			return "showReport.xhtml";
+			return "reportWait.xhtml";
 		}
 	}
 
