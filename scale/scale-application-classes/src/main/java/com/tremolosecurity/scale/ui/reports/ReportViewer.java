@@ -192,6 +192,16 @@ public class ReportViewer {
 	}
 
 	public ReportResults getResults() {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Results : " + results);
+			if (results != null) {
+				logger.debug("Results groups : " + results.getGrouping());
+				
+				if (results.getGrouping() != null) {
+					logger.debug("Number of groupings : " + results.getGrouping().size());
+				}
+			}
+		}
 		return results;
 	}
 
