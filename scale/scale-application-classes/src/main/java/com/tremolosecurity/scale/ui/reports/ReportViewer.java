@@ -104,11 +104,18 @@ public class ReportViewer {
 			json.append(line);
 		}
 
-		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Report JSON : '" + json + "'");
+		}
 		
 		Gson gson = new Gson();
 		ProvisioningResult pres = gson.fromJson(json.toString(),
 				ProvisioningResult.class);
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Provision results success : " + pres.isSuccess());
+			logger.debug("Provision results : " + pres.getReportResults());
+		}
 		
 		if (! pres.isSuccess()) {
 			this.error = "There was a problem running the report - " + pres.getError().getError();
