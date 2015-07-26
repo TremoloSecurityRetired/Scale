@@ -73,6 +73,8 @@ public class ReportViewer {
 	
 	String runDateTime;
 	
+	boolean reportLoaded;
+	
 	public void loadReport() throws ClientProtocolException, IOException {
 		
 		
@@ -123,6 +125,8 @@ public class ReportViewer {
 			this.results = pres.getReportResults();
 			this.error = null;
 		}
+		
+		this.reportLoaded = true;
 
 	}
 	
@@ -136,6 +140,7 @@ public class ReportViewer {
 			this.paramError = null;
 			this.results = null;
 			this.runDateTime = null;
+			this.reportLoaded = false;
 			
 			DateTimeFormatter fmt = DateTimeFormat.forPattern("MMMM dd, yyyy HH:mm:ss zzz");
 			this.runDateTime = fmt.print(System.currentTimeMillis());
@@ -294,5 +299,9 @@ public class ReportViewer {
 	
 	public String getExcelName() {
 		return this.reportInfo.getName().replaceAll(" ", "_") + "-" + this.runDateTime.replaceAll(" ", "_") + ".xlsx";
+	}
+	
+	public boolean isReportDone() {
+		return this.reportLoaded;
 	}
 }

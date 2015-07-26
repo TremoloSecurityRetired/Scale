@@ -29,6 +29,12 @@ limitations under the License.
         <servlet-name>LoadReport</servlet-name>
         <servlet-class>com.tremolosecurity.scale.ui.reports.LoadReport</servlet-class>
   </servlet>
+  
+    <servlet>
+        <servlet-name>CheckReportStatus</servlet-name>
+        <servlet-class>com.tremolosecurity.scale.ui.reports.CheckReportStatus</servlet-class>
+  </servlet>
+  
   <filter>
     <filter-name>MyFacesExtensionsFilter</filter-name>
     <filter-class>org.apache.myfaces.webapp.filter.ExtensionsFilter</filter-class>
@@ -56,6 +62,11 @@ limitations under the License.
   <servlet-mapping>
         <servlet-name>LoadReport</servlet-name>
         <url-pattern>/loadReport</url-pattern>
+  </servlet-mapping>
+  
+   <servlet-mapping>
+        <servlet-name>CheckReportStatus</servlet-name>
+        <url-pattern>/checkReportStatus</url-pattern>
   </servlet-mapping>
   <welcome-file-list>
     <welcome-file>index.xhtml</welcome-file>

@@ -29,11 +29,47 @@ limitations under the License.
 			xmlhttpdlq = new XMLHttpRequest();
 			xmlhttpdlq.onreadystatechange=function()
 			{
-				window.location="showReport.xhtml";	
 				
-			}
+				xmlhttpCheckRequest = new XMLHttpRequest();
+				xmlhttpCheckRequest.onreadystatechange=function() {
+					respJSON = JSON.parse(xmlhttpCheckRequest.responseText);
+					if (respJSON.result == 'true') {
+						window.location="showReport.xhtml";
+					} else {
+						setInterval(
+							function() {
+								xmlhttpCheckRequest2 = new XMLHttpRequest();
+								xmlhttpCheckRequest2.onreadystatechange=function() {
+									respJSON = JSON.parse(xmlhttpCheckRequest2.responseText);
+									if (respJSON.result == 'true') {
+										window.location="showReport.xhtml";
+									}
+								};
+								xmlhttpCheckRequest2.open("GET","checkReportStatus");
+								xmlhttpCheckRequest2.send();
+							}
+							,3000
+						);			
+					}	
+				};
+				xmlhttpCheckRequest.open("GET","checkReportStatus");
+				xmlhttpCheckRequest.send();
+				
+				
+				
+				
+				
+				
+			};
 			xmlhttpdlq.open("GET","loadReport",true);
 			xmlhttpdlq.send();
+			
+			
+			
+			function checkReportStatus(checkStatusReq) {
+				
+			}
+			
 		</script>
 			
 		<center><h1><i class="fa fa-refresh fa-spin block"></i></h1></center>
