@@ -544,4 +544,45 @@ limitations under the License.
 	</element>
 
 	
+	<!-- Single Request -->
+	<complexType name="ScaleSingleRequestConfigType">
+		<complexContent>
+			<extension base="tns:ScaleCommonConfigType">
+				<sequence>
+					<element name="frontPage"
+						type="tns:ScaleSingleRequestFrontPageType" maxOccurs="1" minOccurs="1" />
+					<element name="workflowName" type="string" maxOccurs="1" minOccurs="1" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="ScaleSingleRequestFrontPageType">
+	<annotation>
+			<documentation>Defines UI customizations for Scale single request's front page</documentation>
+		</annotation>
+		<sequence>
+			<element name="title" type="string">
+			<annotation>
+					<documentation>Title for the front page</documentation>
+				</annotation>
+			
+			</element>
+			<element name="text" type="string">
+			<annotation>
+					<documentation>Text for the main page</documentation>
+				</annotation>
+			
+			</element>
+		</sequence>
+
+	</complexType>
+	
+	<element name="ScaleSingleRequestConfig" type="tns:ScaleSingleRequestConfigType">
+		<annotation>
+			<documentation>The root element for Scale's Single Request application</documentation>
+		</annotation>
+	</element>
+	
+	
 </schema>

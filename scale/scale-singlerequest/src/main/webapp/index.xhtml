@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:t="http://myfaces.apache.org/tomahawk"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+<f:view>
+<ui:composition template="./masterTemplate.xhtml">
+		<ui:define name="windowTitle">Make Single Request</ui:define>
+		<ui:define name="pageTitle">#{scaleSingleRequestController.singleRequestConfig.frontPage.title}</ui:define>
+		<ui:define name="pageContent">
+		<p>#{scaleCommonConfig.scaleConfig.frontPage.text}</p>
+		
+		
+		
+		<h:panelGroup rendered="#{not empty scaleSingleRequestController.error}">
+			<div class="alert alert-danger" role="alert">There was a problem saving your request - #{scaleSingleRequestController.error}</div>
+		</h:panelGroup>
+		
+		<h:panelGroup rendered="#{scaleSingleRequestController.singleRequestSubmitted}">
+			<div class="alert alert-success" role="alert">Your request was submitted</div>
+		</h:panelGroup>
+		<h:form>
+		<h:panelGroup rendered="#{not scaleSingleRequestController.singleRequestSubmitted}">
+			
+			<div class="row">
+				<div class="col-md-2">Reason</div>
+				<div class="col-md-8"><h:inputText class="form-control" value="${scaleSingleRequestController.requestReason}" /></div>
+			</div>
+			<div class="row">
+				<div class="col-md-2"></div>
+				<div class="col-md-8">
+					<h:commandButton class="btn btn-primary btn-block" action="#{scaleSingleRequestController.makeRequest()}" value="Submit Request"/>
+				</div>
+			</div>
+			
+		</h:panelGroup>
+		</h:form>
+		</ui:define>
+</ui:composition>
+</f:view>
+</html>

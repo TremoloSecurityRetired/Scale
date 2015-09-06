@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>tremolosecurity-scale</groupId>
+		<artifactId>scale</artifactId>
+		<version>1.0.6</version>
+	</parent>
+	<artifactId>scale-singlerequest</artifactId>
+	<packaging>war</packaging>
+	<name>scale-singlerequest</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>tremolosecurity-scale</groupId>
+			<artifactId>scale-singlerequest-classes</artifactId>
+			<version>1.0.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>6.0.41</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>tremolosecurity-scale</groupId>
+			<artifactId>scale-config</artifactId>
+			<version>1.0.6</version>
+		</dependency>
+	</dependencies>
+</project>

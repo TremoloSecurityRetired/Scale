@@ -29,6 +29,8 @@ limitations under the License.
   	<module>scale-passwordreset-classes</module>
   	<module>scale-register-classes</module>
   	<module>scale-manual</module>
+  	<module>scale-singlerequest</module>
+  	<module>scale-singlerequest-classes</module>
   </modules>
   
   <repositories>
