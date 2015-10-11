@@ -35,6 +35,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
 import com.tremolosecurity.provisioning.service.util.ProvisioningResult;
@@ -49,6 +50,7 @@ import com.tremolosecurity.scale.util.UnisonUserData;
 @ManagedBean(name = "scaleSession")
 @SessionScoped
 public class ScaleSession {
+	static Logger logger = Logger.getLogger(ScaleSession.class.getName());
 	String login;
 	
 	@ManagedProperty(value="#{scaleCommonConfig}")
@@ -58,21 +60,25 @@ public class ScaleSession {
 	
 	
 	@PostConstruct
-	public void init() throws Exception {
-		HttpClientInfo httpci = this.commonConfig.createHttpClientInfo();
-
-		http  = HttpClients.custom()
-		        .setConnectionManager(httpci.getCm()).setDefaultRequestConfig(httpci.getGlobalConfig()).setHostnameVerifier(new AllowAllHostnameVerifier())
-		        .build();
-		
-
-		URL uurl = new URL(commonConfig.getScaleConfig().getServiceConfiguration()
-				.getUnisonURL());
-		int port = uurl.getPort();
-		
-		HttpServletRequest request = (HttpServletRequest) FacesContext
-				.getCurrentInstance().getExternalContext().getRequest();
-		this.login = request.getRemoteUser();
+	public void init() {
+		try {
+			HttpClientInfo httpci = this.commonConfig.createHttpClientInfo();
+	
+			http  = HttpClients.custom()
+			        .setConnectionManager(httpci.getCm()).setDefaultRequestConfig(httpci.getGlobalConfig()).setHostnameVerifier(new AllowAllHostnameVerifier())
+			        .build();
+			
+	
+			URL uurl = new URL(commonConfig.getScaleConfig().getServiceConfiguration()
+					.getUnisonURL());
+			int port = uurl.getPort();
+			
+			HttpServletRequest request = (HttpServletRequest) FacesContext
+					.getCurrentInstance().getExternalContext().getRequest();
+			this.login = request.getRemoteUser();
+		} catch (Exception e) {
+			logger.error("Could not initialize ScaleSession",e);
+		}
 		
 	}
 	

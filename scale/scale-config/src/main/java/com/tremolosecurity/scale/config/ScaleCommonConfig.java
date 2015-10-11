@@ -41,6 +41,7 @@ import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.log4j.Logger;
 
 import com.tremolosecurity.saml.Attribute;
 import com.tremolosecurity.scale.config.xml.InitParamType;
@@ -53,6 +54,7 @@ import com.tremolosecurity.scale.util.HttpClientInfo;
 @ManagedBean(name="scaleCommonConfig")
 @ApplicationScoped
 public class ScaleCommonConfig {
+	static Logger logger = Logger.getLogger(ScaleCommonConfig.class.getName());
 	ScaleCommonConfigType scaleConfig;
 	
 	
@@ -61,53 +63,57 @@ public class ScaleCommonConfig {
 	private SSLContext sslctx;
 	
 	@PostConstruct
-	public void init() throws Exception {
-		ServletContext context = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
-		
-		String configPath = context.getInitParameter("scaleConfigPath");
-		if (configPath == null) {
-			throw new Exception("No scaleConfigPath found");
+	public void init()  {
+		try {
+			ServletContext context = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+			
+			String configPath = context.getInitParameter("scaleConfigPath");
+			if (configPath == null) {
+				throw new Exception("No scaleConfigPath found");
+			}
+			
+			InputStream in = null;
+			
+			if (configPath.startsWith("WEB-INF")) {
+				in = context.getResourceAsStream("/" + configPath);
+			} else {
+				in = new FileInputStream(configPath);
+			}
+			
+			
+			
+			
+			JAXBContext jc = JAXBContext.newInstance("com.tremolosecurity.scale.config.xml");
+			Unmarshaller unmarshaller = jc.createUnmarshaller();
+			
+			
+			Object obj = unmarshaller.unmarshal(in);
+			
+			JAXBElement<ScaleCommonConfigType> scaleConfig = (JAXBElement<ScaleCommonConfigType>) obj;
+			
+			this.scaleConfig = scaleConfig.getValue();
+			
+			
+			
+			
+			String ksPath = this.scaleConfig.getServiceConfiguration().getKeyStorePath();
+			String ksPass = this.scaleConfig.getServiceConfiguration().getKeyStorePassword();
+			
+			in = null;
+			
+			if (ksPath.startsWith("WEB-INF")) {
+				in = context.getResourceAsStream("/" + ksPath);
+			} else {
+				in = new FileInputStream(ksPath);
+			}
+			
+			this.tlsKeys = KeyStore.getInstance("JKS");
+			this.tlsKeys.load(in,ksPass.toCharArray());
+			
+			this.sslctx = SSLContexts.custom().loadTrustMaterial(this.tlsKeys).loadKeyMaterial(this.tlsKeys, ksPass.toCharArray()).build();
+		} catch (Exception e) {
+			logger.error("Could not initialize ScaleCommonConfig",e);
 		}
-		
-		InputStream in = null;
-		
-		if (configPath.startsWith("WEB-INF")) {
-			in = context.getResourceAsStream("/" + configPath);
-		} else {
-			in = new FileInputStream(configPath);
-		}
-		
-		
-		
-		
-		JAXBContext jc = JAXBContext.newInstance("com.tremolosecurity.scale.config.xml");
-		Unmarshaller unmarshaller = jc.createUnmarshaller();
-		
-		
-		Object obj = unmarshaller.unmarshal(in);
-		
-		JAXBElement<ScaleCommonConfigType> scaleConfig = (JAXBElement<ScaleCommonConfigType>) obj;
-		
-		this.scaleConfig = scaleConfig.getValue();
-		
-		
-		
-		
-		String ksPath = this.scaleConfig.getServiceConfiguration().getKeyStorePath();
-		String ksPass = this.scaleConfig.getServiceConfiguration().getKeyStorePassword();
-		
-		in = null;
-		
-		if (ksPath.startsWith("WEB-INF")) {
-			in = context.getResourceAsStream("/" + ksPath);
-		} else {
-			in = new FileInputStream(ksPath);
-		}
-		
-		this.tlsKeys = KeyStore.getInstance("JKS");
-		this.tlsKeys.load(in,ksPass.toCharArray());
-		
-		this.sslctx = SSLContexts.custom().loadTrustMaterial(this.tlsKeys).loadKeyMaterial(this.tlsKeys, ksPass.toCharArray()).build();
 	}
 
 	public ScaleCommonConfigType getScaleConfig() {

@@ -30,11 +30,12 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.log4j.Logger;
+
 import com.tremolosecurity.saml.Attribute;
 import com.tremolosecurity.scale.config.xml.AppUiConfigType;
 import com.tremolosecurity.scale.config.xml.InitParamType;
 import com.tremolosecurity.scale.config.xml.ScaleConfigType;
-
 import com.tremolosecurity.scale.ui.UiDecisions;
 import com.tremolosecurity.scale.user.AttributeData;
 import com.tremolosecurity.scale.user.ScaleAttribute;
@@ -42,7 +43,7 @@ import com.tremolosecurity.scale.user.ScaleAttribute;
 @ManagedBean(name="scaleConfiguration")
 @ApplicationScoped
 public class ScaleConfiguration {
-
+	static Logger logger = Logger.getLogger(ScaleConfiguration.class.getName());
 	@ManagedProperty(value="#{scaleCommonConfig}")
 	ScaleCommonConfig commonConfig;
 	
@@ -57,31 +58,34 @@ public class ScaleConfiguration {
 	
 
 	@PostConstruct
-	public void init() throws Exception {
+	public void init()  {
 		
-		ScaleConfigType scaleConfig = (ScaleConfigType) this.commonConfig.getScaleConfig();
-		
-		this.attributeData = new AttributeData(scaleConfig.getUserAttributesConfig());
-		
-		
-		HashMap<String,Attribute> decisionConfig = new HashMap<String,Attribute>();
-		AppUiConfigType uiCfg =  scaleConfig.getAppUiConfig();
-		String decisionClassName = uiCfg.getUiDecsionClass().getClassName();
-		for (InitParamType param : uiCfg.getUiDecsionClass().getInitParams()) {
-			Attribute attr = decisionConfig.get(param.getName());
-			if (attr == null) {
-				attr = new Attribute(param.getName());
-				decisionConfig.put(attr.getName(), attr);
+		try {
+			ScaleConfigType scaleConfig = (ScaleConfigType) this.commonConfig.getScaleConfig();
+			
+			this.attributeData = new AttributeData(scaleConfig.getUserAttributesConfig());
+			
+			
+			HashMap<String,Attribute> decisionConfig = new HashMap<String,Attribute>();
+			AppUiConfigType uiCfg =  scaleConfig.getAppUiConfig();
+			String decisionClassName = uiCfg.getUiDecsionClass().getClassName();
+			for (InitParamType param : uiCfg.getUiDecsionClass().getInitParams()) {
+				Attribute attr = decisionConfig.get(param.getName());
+				if (attr == null) {
+					attr = new Attribute(param.getName());
+					decisionConfig.put(attr.getName(), attr);
+				}
+				
+				attr.getValues().add(param.getValue());
 			}
 			
-			attr.getValues().add(param.getValue());
+			this.uiDecisions = (UiDecisions) Class.forName(decisionClassName).newInstance();
+			this.uiDecisions.init(decisionConfig);
+			
+			this.approvalAttrs = new AttributeData(scaleConfig.getApprovals().getAttributes());
+		} catch (Exception e) {
+			logger.error("Could not initialize ScaleConfiguration",e);
 		}
-		
-		this.uiDecisions = (UiDecisions) Class.forName(decisionClassName).newInstance();
-		this.uiDecisions.init(decisionConfig);
-		
-		this.approvalAttrs = new AttributeData(scaleConfig.getApprovals().getAttributes());
-		
 		
 		
 		
