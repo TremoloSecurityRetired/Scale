@@ -32,7 +32,13 @@ limitations under the License.
 				
 				xmlhttpCheckRequest = new XMLHttpRequest();
 				xmlhttpCheckRequest.onreadystatechange=function() {
-					respJSON = JSON.parse(xmlhttpCheckRequest.responseText);
+					respText = xmlhttpCheckRequest.responseText;
+					if (respText != null && respText.length > 0 ) {
+						respJSON = JSON.parse(respText);	
+					} else {
+						respJSON = 'false';
+					}
+					
 					if (respJSON.result == 'true') {
 						window.location="showReport.xhtml";
 					} else {
@@ -40,7 +46,13 @@ limitations under the License.
 							function() {
 								xmlhttpCheckRequest2 = new XMLHttpRequest();
 								xmlhttpCheckRequest2.onreadystatechange=function() {
-									respJSON = JSON.parse(xmlhttpCheckRequest2.responseText);
+									respText = xmlhttpCheckRequest2.responseText;
+									if (respText != null && respText.length > 0 ) {
+										respJSON = JSON.parse(respText);	
+									} else {
+										respJSON = 'false';
+									}
+									
 									if (respJSON.result == 'true') {
 										window.location="showReport.xhtml";
 									}
