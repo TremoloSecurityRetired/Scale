@@ -33,7 +33,7 @@ limitations under the License.
 				xmlhttpCheckRequest = new XMLHttpRequest();
 				xmlhttpCheckRequest.onreadystatechange=function() {
 					respText = xmlhttpCheckRequest.responseText;
-					if (respText != null && respText.length > 0 ) {
+					if (respText != null &amp;&amp; respText.length > 0 ) {
 						respJSON = JSON.parse(respText);	
 					} else {
 						respJSON = 'false';
@@ -47,7 +47,7 @@ limitations under the License.
 								xmlhttpCheckRequest2 = new XMLHttpRequest();
 								xmlhttpCheckRequest2.onreadystatechange=function() {
 									respText = xmlhttpCheckRequest2.responseText;
-									if (respText != null && respText.length > 0 ) {
+									if (respText != null &amp;&amp; respText.length > 0 ) {
 										respJSON = JSON.parse(respText);	
 									} else {
 										respJSON = 'false';
