@@ -29,6 +29,10 @@ public class RouteLogout extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
+		resp.setHeader("Cache-Control", "private, no-store, no-cache, must-revalidate");
+		resp.setHeader("Pragma", "no-cache");
+		
+		
 		ScaleUser scaleUser = (ScaleUser) req.getSession().getAttribute("scaleUser");
 		
 		if (scaleUser.getCartAsList().isEmpty()) {

@@ -34,6 +34,10 @@ public class CheckReportStatus extends HttpServlet {
 			throws ServletException, IOException {
 		
 		resp.setContentType("application/json");
+		resp.setHeader("Cache-Control", "private, no-store, no-cache, must-revalidate");
+		resp.setHeader("Pragma", "no-cache");
+		
+		
 		ReportViewer scaleReport = (ReportViewer) req.getSession().getAttribute("scaleReport");
 		String respJSON = "{\"result\" : \"false\"}";
 		if (scaleReport != null) {

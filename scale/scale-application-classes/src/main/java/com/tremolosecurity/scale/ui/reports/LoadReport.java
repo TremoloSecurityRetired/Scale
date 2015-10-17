@@ -27,6 +27,8 @@ public class LoadReport extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
+		resp.setHeader("Cache-Control", "private, no-store, no-cache, must-revalidate");
+		resp.setHeader("Pragma", "no-cache");
 		
 		ReportViewer scaleReport = (ReportViewer) req.getSession().getAttribute("scaleReport");	
 		scaleReport.loadReport();
