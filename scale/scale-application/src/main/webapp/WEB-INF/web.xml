@@ -40,6 +40,11 @@ limitations under the License.
         <servlet-class>com.tremolosecurity.scale.ui.reports.CheckReportStatus</servlet-class>
   </servlet>
   
+  <servlet>
+        <servlet-name>RouteLogout</servlet-name>
+        <servlet-class>com.tremolosecurity.scale.ui.util.RouteLogout</servlet-class>
+  </servlet>
+  
   <filter>
     <filter-name>MyFacesExtensionsFilter</filter-name>
     <filter-class>org.apache.myfaces.webapp.filter.ExtensionsFilter</filter-class>
@@ -68,7 +73,10 @@ limitations under the License.
         <servlet-name>LoadReport</servlet-name>
         <url-pattern>/loadReport</url-pattern>
   </servlet-mapping>
-  
+    <servlet-mapping>
+        <servlet-name>RouteLogout</servlet-name>
+        <url-pattern>/routeLogout</url-pattern>
+  </servlet-mapping>
    <servlet-mapping>
         <servlet-name>CheckReportStatus</servlet-name>
         <url-pattern>/checkReportStatus</url-pattern>
@@ -76,6 +84,7 @@ limitations under the License.
   <welcome-file-list>
     <welcome-file>index.xhtml</welcome-file>
   </welcome-file-list>
+ <!-- 
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>MyResourceName</web-resource-name>
@@ -93,6 +102,8 @@ limitations under the License.
     <description>Role for simple users</description>
     <role-name>Users</role-name>
   </security-role>
+   -->
+   
   <context-param>
     <param-name>scaleConfigPath</param-name>
     <param-value>WEB-INF/scaleConfig.xml</param-value>

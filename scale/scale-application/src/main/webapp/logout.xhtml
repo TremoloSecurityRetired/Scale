@@ -27,7 +27,6 @@ limitations under the License.
 		<ui:define name="windowTitle">Logout</ui:define>
 		<ui:define name="pageTitle">Confirm Logout</ui:define>
 		<ui:define name="pageContent">
-			<f:event listener="#{scaleUser.checkCart}" type="preRenderView"></f:event>
 			<div class="alert alert-danger" role="alert">
 						<b>There are still items in your cart.  Don't forget to check them out to complete the requests.</b><br />
 						<a href="finish-logout.xhtml">Continue to logout</a>
