@@ -41,7 +41,7 @@ public class GenerateSpreadsheet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		ReportViewer scaleReport = (ReportViewer) req.getSession().getAttribute("scaleReport");
+		ReportViewer scaleReport = (ReportViewer) req.getSession().getAttribute("scaleReportCached");
 		
 		Workbook wb = new XSSFWorkbook();
 		

@@ -85,7 +85,13 @@ limitations under the License.
 					</table>
 				</ui:repeat>
 			</h:form>
-
+			
+			<!-- Clear the report -->
+			<script>
+				xmlhttpdlq = new XMLHttpRequest();
+				xmlhttpCheckRequest.open("GET","clearReport");
+				xmlhttpCheckRequest.send();
+			</script>
 
 		</ui:define>
 	</ui:composition>
