@@ -51,10 +51,14 @@ import com.tremolosecurity.scale.user.AttributeData;
 import com.tremolosecurity.scale.user.ScaleAttribute;
 import com.tremolosecurity.scale.util.HttpClientInfo;
 
+
+
 @ManagedBean(name="scaleCommonConfig")
 @ApplicationScoped
 public class ScaleCommonConfig {
-	static Logger logger = Logger.getLogger(ScaleCommonConfig.class.getName());
+	public static final String version = "1.0.6-2015102201";
+	
+	static Logger logger;
 	ScaleCommonConfigType scaleConfig;
 	
 	
@@ -66,6 +70,16 @@ public class ScaleCommonConfig {
 	public void init()  {
 		try {
 			ServletContext context = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+			
+			
+			
+			
+			org.apache.log4j.xml.DOMConfigurator.configure(context.getRealPath("/WEB-INF/log4j.xml"));
+
+			logger =   Logger.getLogger(ScaleCommonConfig.class.getName());
+			
+			logger.info("Initializing Scale " + version);
+			
 			
 			String configPath = context.getInitParameter("scaleConfigPath");
 			if (configPath == null) {

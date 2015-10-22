@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<log4j:configuration debug="true">
+
+
+	<appender name="server-log" class="org.apache.log4j.ConsoleAppender">
+
+
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d][%t] %-5p %c{1} - %m%n" />
+		</layout>
+	</appender>
+
+
+	<root>
+		<level name="info" />
+		<appender-ref ref="server-log" />
+	</root>
+
+
+
+
+
+
+
+</log4j:configuration>
