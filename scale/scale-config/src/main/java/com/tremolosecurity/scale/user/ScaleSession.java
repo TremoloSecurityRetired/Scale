@@ -112,12 +112,14 @@ public class ScaleSession {
 		}
 		
 		
+		
 
 		Gson gson = new Gson();
 		ProvisioningResult pres = gson.fromJson(json.toString(),
 				ProvisioningResult.class);
 
 		if (!pres.isSuccess()) {
+			logger.error("Could not load user : '" + pres.getError().getError() + "'");
 			return null;
 		}
 
@@ -161,7 +163,7 @@ public class ScaleSession {
 		}
 		
 		
-
+		
 		
 		pres = gson.fromJson(json.toString(),
 				ProvisioningResult.class);

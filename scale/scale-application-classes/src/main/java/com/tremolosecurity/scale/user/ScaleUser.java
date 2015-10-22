@@ -321,6 +321,7 @@ public class ScaleUser {
 		UnisonUserData userData = scaleSession.loadUserFromUnison(loginID, attributeData);
 		
 		if (userData == null) {
+			logger.warn("No user data, returning null");
 			return null;
 		}
 		
