@@ -115,8 +115,5 @@ limitations under the License.
   </security-role>
    -->
    
-  <context-param>
-    <param-name>scaleConfigPath</param-name>
-    <param-value>WEB-INF/scaleConfig.xml</param-value>
-  </context-param>
+
 </web-app>

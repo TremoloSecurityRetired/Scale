@@ -20,11 +20,14 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.net.ssl.SSLContext;
 import javax.servlet.ServletContext;
 import javax.xml.bind.JAXBContext;
@@ -42,6 +45,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 import com.tremolosecurity.saml.Attribute;
 import com.tremolosecurity.scale.config.xml.InitParamType;
@@ -56,7 +60,7 @@ import com.tremolosecurity.scale.util.HttpClientInfo;
 @ManagedBean(name="scaleCommonConfig")
 @ApplicationScoped
 public class ScaleCommonConfig {
-	public static final String version = "1.0.6-2015102201";
+	public static final String version = "1.0.6-2015102801";
 	
 	static Logger logger;
 	ScaleCommonConfigType scaleConfig;
@@ -72,18 +76,56 @@ public class ScaleCommonConfig {
 			ServletContext context = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
 			
 			
+			String logPath = null;
 			
+			try {
+				logPath = InitialContext.doLookup("java:comp/env/scaleLog4jPath");
+			} catch (NamingException ne) {
+				logPath = InitialContext.doLookup("java:/env/scaleLog4jPath");
+			}
+			if (logPath == null) {
+				Properties props = new Properties();
+				props.put("log4j.rootLogger", "info,console");
+				
+				//props.put("log4j.appender.console","org.apache.log4j.RollingFileAppender");
+				//props.put("log4j.appender.console.File","/home/mlb/myvd.log");
+				props.put("log4j.appender.console","org.apache.log4j.ConsoleAppender");
+				props.put("log4j.appender.console.layout","org.apache.log4j.PatternLayout");
+				props.put("log4j.appender.console.layout.ConversionPattern","[%d][%t] %-5p %c{1} - %m%n");
+				
+				
+				
+				PropertyConfigurator.configure(props);
+			} else {
+				
+				if (logPath.startsWith("WEB-INF/")) {
+					org.apache.log4j.xml.DOMConfigurator.configure(context.getRealPath(logPath));
+				} else {
+					org.apache.log4j.xml.DOMConfigurator.configure(logPath);
+				}
+				
+				
+			}
 			
-			org.apache.log4j.xml.DOMConfigurator.configure(context.getRealPath("/WEB-INF/log4j.xml"));
 
 			logger =   Logger.getLogger(ScaleCommonConfig.class.getName());
 			
 			logger.info("Initializing Scale " + version);
 			
 			
-			String configPath = context.getInitParameter("scaleConfigPath");
+			String configPath = null;
+			
+			try {
+				configPath = InitialContext.doLookup("java:comp/env/scaleConfigPath");
+			} catch (NamingException ne) {
+				configPath = InitialContext.doLookup("java:/env/scaleConfigPath");
+			}
+			
+			
 			if (configPath == null) {
 				throw new Exception("No scaleConfigPath found");
+			} else {
+				logger.info("Loading configuration from '" + configPath + "'");
 			}
 			
 			InputStream in = null;
@@ -126,7 +168,7 @@ public class ScaleCommonConfig {
 			
 			this.sslctx = SSLContexts.custom().loadTrustMaterial(this.tlsKeys).loadKeyMaterial(this.tlsKeys, ksPass.toCharArray()).build();
 		} catch (Exception e) {
-			logger.error("Could not initialize ScaleCommonConfig",e);
+			e.printStackTrace();
 		}
 	}
 
