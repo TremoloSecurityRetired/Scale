@@ -39,7 +39,7 @@ limitations under the License.
 					</div>
 					
 					<div class="col-md-6">
-						<div class="alert alert-info" role="info">
+						<div class="alert alert-info" >
 							<h3>${scaleUser.currentOrg.name}</h3>
 							${scaleUser.currentOrg.description}
 						</div>
@@ -50,9 +50,9 @@ limitations under the License.
 				<div class="row">
 					<table class="table table-striped">
 						<tr>
-							<th>Action</th>
-							<th>Label</th>
-							<th>Description</th>
+							<th scope="col">Action</th>
+							<th scope="col">Label</th>
+							<th scope="col">Description</th>
 						</tr>
 						
 						<ui:repeat var="wf" value="${scaleUser.workflows}">

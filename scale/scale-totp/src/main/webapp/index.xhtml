@@ -15,7 +15,7 @@
 		
 		
 		<h:panelGroup rendered="#{not empty scaleTotpController.error}">
-			<div class="alert alert-danger" role="alert">There was a problem loading your authentication token - #{scaleTotpController.error}</div>
+			<div class="alert alert-danger" >There was a problem loading your authentication token - #{scaleTotpController.error}</div>
 		</h:panelGroup>
 		
 		<h:panelGroup rendered="#{empty scaleTotpController.error}">

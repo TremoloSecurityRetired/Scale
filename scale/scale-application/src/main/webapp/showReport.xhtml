@@ -28,7 +28,7 @@ limitations under the License.
 				<h:panelGroup rendered="#{not empty scaleReport.error}">
 				<div class="row">
 					
-					<div class="alert alert-danger" role="alert">
+					<div class="alert alert-danger" >
 						<b>There was a problem running the report : </b> ${scaleReport.error}
 					</div>
 				
@@ -53,7 +53,7 @@ limitations under the License.
 				<h:panelGroup rendered="#{empty scaleReport.results.grouping}">
 				<div class="row">
 					
-					<div class="alert alert-info" role="alert">
+					<div class="alert alert-info" >
 						No data was returned for this report.  Please check your parameters and try again.
 					</div>
 				
@@ -63,14 +63,14 @@ limitations under the License.
 				<ui:repeat var="resultGroup" value="${scaleReport.results.grouping}">
 					<table class="table">
 						<ui:repeat var="colHeader" value="${scaleReport.results.headerFields}">
-							<tr><th>#{colHeader}</th><td>#{resultGroup.header.get(colHeader)}</td></tr>
+							<tr><th  scope="row">#{colHeader}</th><td>#{resultGroup.header.get(colHeader)}</td></tr>
 						</ui:repeat>
 					</table>
 					
 					<table class="table table-striped">
 						<tr>
 							<ui:repeat var="colHeader" value="${scaleReport.results.dataFields}">
-								<th>#{colHeader}</th>	
+								<th scope="col">#{colHeader}</th>	
 							</ui:repeat>
 						</tr>
 						<ui:repeat var="row" value="${resultGroup.data}">

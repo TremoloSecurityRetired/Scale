@@ -27,7 +27,8 @@ limitations under the License.
 	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:permittedTaglibs="http://jakarta.apache.org/taglibs/standard/permittedTaglibs"
-	xmlns:scriptfree="http://jakarta.apache.org/taglibs/standard/scriptfree">
+	xmlns:scriptfree="http://jakarta.apache.org/taglibs/standard/scriptfree"
+	xml:lang="en">
 <h:head>
 	    <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -59,23 +60,23 @@ limitations under the License.
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <img class="hidden-xs" src="images/logo-desktop.png"  width="85%" />
-            <img class="visible-xs img-responsive" src="images/logo-mobile.png"  />
+            <img class="hidden-xs" src="images/logo-desktop.png"  width="85%" alt="scale"/>
+            <img class="visible-xs img-responsive" src="images/logo-mobile.png" alt="scale" />
           </div>
           <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-              <li class="#{uiHelper.generateActiveHighlight('user')}" ><a href="user.xhtml">#{scaleUser.displayName}</a></li>
-              <li class="#{uiHelper.generateActiveHighlight('home')}" ><a href="#{scaleConfiguration.rawConfig.uiConfig.homeURL}">Home</a></li>
+              <li class="#{uiHelper.generateActiveHighlight('user')}" ><a href="user.xhtml" style="color:#484848"  >#{scaleUser.displayName}</a></li>
+              <li class="#{uiHelper.generateActiveHighlight('home')}" ><a href="#{scaleConfiguration.rawConfig.uiConfig.homeURL}" style="color:#484848">Home</a></li>
               <!-- <li><a href="applications.html">Applications</a></li>  -->
-              <li class="#{uiHelper.generateActiveHighlight('requestaccess')}"><a href="requestaccess.xhtml">Request Access</a></li>
-              <li class="#{uiHelper.generateActiveHighlight('cart')}"><a href="cart.xhtml" >Check Out
+              <li class="#{uiHelper.generateActiveHighlight('requestaccess')}"><a href="requestaccess.xhtml" style="color:#484848">Request Access</a></li>
+              <li class="#{uiHelper.generateActiveHighlight('cart')}"><a href="cart.xhtml" style="color:#484848">Check Out
               	<h:panelGroup rendered="#{not empty scaleUser.cart}">
               		<span class="badge alert-danger">${scaleUser.cart.size()}</span>
               	</h:panelGroup>
               	</a>
               </li>
               <li class="#{uiHelper.generateActiveHighlight('approvals')}"><h:panelGroup rendered="#{openApprovals.numberOfOpenApprovals > 0}">
-              <a href="approvals.xhtml">Open Approvals 
+              <a href="approvals.xhtml" style="color:#484848">Open Approvals 
               
               		<span class="badge alert-danger">${openApprovals.numberOfOpenApprovals}</span></a>
               	</h:panelGroup>
@@ -83,7 +84,7 @@ limitations under the License.
               </li>
               
               <li class="#{uiHelper.generateActiveHighlight('reports')}"><h:panelGroup rendered="#{scaleUser.userReports}">
-              <a href="listReports.xhtml">Reports</a>
+              <a href="listReports.xhtml" style="color:#484848">Reports</a>
               	</h:panelGroup>
               
               </li>
@@ -91,7 +92,7 @@ limitations under the License.
               
               <!-- <li><a href="requests.html">Requests <span class="badge alert-success">2</span> <span class="badge">3</span></a></li>  -->
               <!-- <li><a href="reports.html">Reports</a></li>  -->
-              <li class="#{uiHelper.generateActiveHighlight('logout')}"><a href="routeLogout">Logout</a></li>
+              <li class="#{uiHelper.generateActiveHighlight('logout')}"><a href="routeLogout" style="color:#484848">Logout</a></li>
             </ul>
               
           </div><!--/.nav-collapse -->

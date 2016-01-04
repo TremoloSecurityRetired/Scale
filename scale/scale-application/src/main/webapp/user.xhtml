@@ -26,11 +26,11 @@ limitations under the License.
 
 			<div class="container">
 				<h:panelGroup rendered="#{saveResults.saved}">
-					<div class="alert alert-success" role="alert">
+					<div class="alert alert-success" >
 						${scaleUser.displayName}'s Profile Successfully Saved</div>
 				</h:panelGroup>
 				<h:panelGroup rendered="#{saveResults.error}">
-					<div class="alert alert-danger" role="alert">
+					<div class="alert alert-danger" >
 						<b>There was a problem saving ${scaleUser.displayName}'s
 							profile:</b>
 						<ul>
@@ -87,7 +87,7 @@ limitations under the License.
 					<div class="col-md-6">
 						<h3>Roles</h3>
 						<h:panelGroup rendered="${scaleUser.groups.size() == 0}">
-							<div class="alert alert-info" role="info">${scaleUser.displayName}
+							<div class="alert alert-info" >${scaleUser.displayName}
 								has no roles assigned</div>
 						</h:panelGroup>
 						<h:panelGroup rendered="${scaleUser.groups.size() > 0}">

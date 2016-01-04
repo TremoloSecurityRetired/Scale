@@ -39,7 +39,7 @@ limitations under the License.
 				}
 			</script>
 			<h:panelGroup rendered="#{approvalReview.error}">
-				<div class="alert alert-danger" role="alert">
+				<div class="alert alert-danger" >
 					<b>There was a problem confirming
 						${approvalReview.userObj.displayName}'s request:</b>
 					<ul>
@@ -130,7 +130,7 @@ limitations under the License.
 					<h4>Roles</h4>
 					<h:panelGroup
 						rendered="${approvalReview.userObj.groups.size() == 0}">
-						<div class="alert alert-info" role="info">${approvalReview.userObj.displayName}
+						<div class="alert alert-info" >${approvalReview.userObj.displayName}
 							has no roles assigned</div>
 					</h:panelGroup>
 					<h:panelGroup

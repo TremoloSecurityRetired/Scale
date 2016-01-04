@@ -39,7 +39,7 @@ limitations under the License.
 					</div>
 					
 					<div class="col-md-6">
-						<div class="alert alert-info" role="info">
+						<div class="alert alert-info" >
 							<h3>${scaleUser.currentOrg.name}</h3>
 							${scaleUser.currentOrg.description}
 						</div>
@@ -50,8 +50,8 @@ limitations under the License.
 				<div class="row">
 					<table class="table table-striped">
 						<tr>
-							<th>Name</th>
-							<th>Description</th>
+							<th scope="col">Name</th>
+							<th scope="col">Description</th>
 						</tr>
 						
 						<ui:repeat var="report" value="${scaleUser.reports}">

@@ -44,10 +44,10 @@ limitations under the License.
 					}
 				}
 			</script>
-			<h:form>
+			<h:form >
 				
 				<h:panelGroup rendered="#{openApprovals.error}">
-					<div class="alert alert-danger" role="alert">
+					<div class="alert alert-danger" >
 						<b>There was a problem loading ${scaleUser.displayName}'s
 							open approvals</b>
 						
@@ -55,7 +55,7 @@ limitations under the License.
 				</h:panelGroup>
 
 				<h:panelGroup rendered="#{empty openApprovals.approvals}">
-					<div class="alert alert-info" role="alert">
+					<div class="alert alert-info" >
 						${scaleUser.displayName} does not have any open approvals at this time</div>
 				</h:panelGroup>
 
@@ -98,11 +98,11 @@ limitations under the License.
 
 					<!-- 
 						<tr>
-							<th>Action</th>
-							<th>Subject</th>
-							<th>Workflow</th>
-							<th>Request</th>
-							<th>Date Opened</th>
+							<th scope="col">Action</th>
+							<th scope="col">Subject</th>
+							<th scope="col">Workflow</th>
+							<th scope="col">Request</th>
+							<th scope="col">Date Opened</th>
 						</tr>  -->
 
 					<ui:repeat var="approval" value="${openApprovals.approvals}">

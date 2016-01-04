@@ -28,7 +28,7 @@ limitations under the License.
 				<h:panelGroup rendered="#{not empty scaleReport.paramError}">
 				<div class="row">
 					
-					<div class="alert alert-danger" role="alert">
+					<div class="alert alert-danger" >
 						<b>Please correct issue : </b> ${scaleReport.paramError}
 					</div>
 				
@@ -38,7 +38,7 @@ limitations under the License.
 					<div class="row">
 						<div class="col-md-4">User</div>
 						<div class="col-md-8">
-							<h:inputText value="#{scaleReport.userKey}" />
+							<h:inputText value="#{scaleReport.userKey}" aria-label="User"/>
 						</div>
 					</div>
 				</h:panelGroup>
@@ -48,7 +48,7 @@ limitations under the License.
 						<div class="col-md-2">Begin Date</div>
 						<div class="col-md-2">#{scaleReport.beginDateLabel}</div>
 						<div class="col-md-8">
-							<t:inputCalendar value="#{scaleReport.beginDate}" />
+							<t:inputCalendar value="#{scaleReport.beginDate}" aria-label="Begin Date"/>
 						</div>
 					</div>
 				</h:panelGroup>
@@ -58,7 +58,7 @@ limitations under the License.
 						<div class="col-md-2">End Date</div>
 						<div class="col-md-2">#{scaleReport.endDateLabel}</div>
 						<div class="col-md-8">
-							<t:inputCalendar value="#{scaleReport.endDate}" />
+							<t:inputCalendar value="#{scaleReport.endDate}" aria-label="End Date" />
 						</div>
 					</div>
 				</h:panelGroup>

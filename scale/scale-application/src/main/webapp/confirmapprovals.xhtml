@@ -27,7 +27,7 @@ limitations under the License.
 		<ui:define name="pageContent">
 		
 			<h:panelGroup rendered="#{! approvalReview.complete and ! approvalReview.approved}">
-					<div class="alert alert-danger" role="alert">
+					<div class="alert alert-danger" >
 						<b>Confirm denial of ${approvalReview.userObj.displayName}'s request:</b> ${approvalReview.reason}
 					</div>
 				</h:panelGroup>
@@ -39,7 +39,7 @@ limitations under the License.
 				</h:panelGroup>
 				
 				<h:panelGroup rendered="#{approvalReview.complete and ! approvalReview.approved}">
-					<div class="alert alert-danger" role="alert">
+					<div class="alert alert-danger" >
 						<b>${approvalReview.userObj.displayName}'s request denied for the following reason : </b> ${approvalReview.reason}
 					</div>
 				</h:panelGroup>
@@ -112,7 +112,7 @@ limitations under the License.
 					<div class="col-md-6">
 						<h4>Roles</h4>
 						<h:panelGroup rendered="${approvalReview.userObj.groups.size() == 0}">
-							<div class="alert alert-info" role="info">${approvalReview.userObj.displayName}
+							<div class="alert alert-info" >${approvalReview.userObj.displayName}
 								has no roles assigned</div>
 						</h:panelGroup>
 						<h:panelGroup rendered="${approvalReview.userObj.groups.size() > 0}">
