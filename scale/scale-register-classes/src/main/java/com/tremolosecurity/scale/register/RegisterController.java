@@ -123,7 +123,7 @@ public class RegisterController {
 
 
 	@PostConstruct
-	public void init() throws UnsupportedEncodingException, ClientProtocolException, IOException {
+	public void init() {
 		this.acceptTermsAndConditions = false;
 		this.errors = new ArrayList<String>();
 		

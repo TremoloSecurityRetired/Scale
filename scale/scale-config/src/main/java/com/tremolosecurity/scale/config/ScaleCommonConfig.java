@@ -60,7 +60,7 @@ import com.tremolosecurity.scale.util.HttpClientInfo;
 @ManagedBean(name="scaleCommonConfig")
 @ApplicationScoped
 public class ScaleCommonConfig {
-	public static final String version = "1.0.6-2015110101";
+	public static final String version = "1.0.6-2016010101";
 	
 	static Logger logger;
 	ScaleCommonConfigType scaleConfig;

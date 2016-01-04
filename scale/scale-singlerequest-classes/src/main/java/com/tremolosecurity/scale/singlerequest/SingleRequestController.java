@@ -107,7 +107,7 @@ public class SingleRequestController {
 	}
 	
 	@PostConstruct
-	public void init() throws UnsupportedEncodingException, ClientProtocolException, IOException {
+	public void init()  {
 		
 		this.error = "";
 		
