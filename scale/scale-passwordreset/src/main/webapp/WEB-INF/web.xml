@@ -45,7 +45,7 @@ limitations under the License.
     <welcome-file>index.xhtml</welcome-file>
   </welcome-file-list>
   
-  <!-- 
+
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>MyResourceName</web-resource-name>
@@ -63,7 +63,7 @@ limitations under the License.
     <description>Role for simple users</description>
     <role-name>Users</role-name>
   </security-role>
-   -->
+   
   <context-param>
     <param-name>scaleConfigPath</param-name>
     <param-value>WEB-INF/scaleConfig.xml</param-value>

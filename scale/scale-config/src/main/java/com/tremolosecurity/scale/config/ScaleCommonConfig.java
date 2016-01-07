@@ -81,7 +81,11 @@ public class ScaleCommonConfig {
 			try {
 				logPath = InitialContext.doLookup("java:comp/env/scaleLog4jPath");
 			} catch (NamingException ne) {
-				logPath = InitialContext.doLookup("java:/env/scaleLog4jPath");
+				try {
+					logPath = InitialContext.doLookup("java:/env/scaleLog4jPath");
+				} catch (NamingException ne2) {
+					logPath = null;
+				}
 			}
 			if (logPath == null) {
 				Properties props = new Properties();
@@ -118,12 +122,18 @@ public class ScaleCommonConfig {
 			try {
 				configPath = InitialContext.doLookup("java:comp/env/scaleConfigPath");
 			} catch (NamingException ne) {
-				configPath = InitialContext.doLookup("java:/env/scaleConfigPath");
+				try {
+					configPath = InitialContext.doLookup("java:/env/scaleConfigPath");
+				} catch (NamingException ne2) {
+					configPath = null;
+				}
+				
 			}
 			
 			
 			if (configPath == null) {
-				throw new Exception("No scaleConfigPath found");
+				configPath = "WEB-INF/scaleConfig.xml";
+				logger.warn("No configuraiton path found - Loading configuration from '" + configPath + "'");
 			} else {
 				logger.info("Loading configuration from '" + configPath + "'");
 			}

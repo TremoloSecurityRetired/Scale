@@ -95,7 +95,7 @@ limitations under the License.
   <welcome-file-list>
     <welcome-file>index.xhtml</welcome-file>
   </welcome-file-list>
- <!-- 
+  
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>MyResourceName</web-resource-name>
@@ -113,7 +113,7 @@ limitations under the License.
     <description>Role for simple users</description>
     <role-name>Users</role-name>
   </security-role>
-   -->
+   
    
 
 </web-app>
