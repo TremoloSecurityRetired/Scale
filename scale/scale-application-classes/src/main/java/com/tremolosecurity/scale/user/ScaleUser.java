@@ -435,10 +435,13 @@ public class ScaleUser {
 			ProvisioningResult pres = gson.fromJson(json.toString(),
 					ProvisioningResult.class);
 
+			TreeNode root = null;
+			
 			if (pres.isSuccess()) {
 				Organization org = pres.getOrg();
 
-				TreeNode root = new OrgTreeNode(org);
+				root = new OrgTreeNode(org);
+				
 				addChildOrgs(org, root);
 				this.orgTree = new TreeModelBase(root);
 				this.currentOrg = org;
@@ -448,11 +451,14 @@ public class ScaleUser {
 				o.setName("Root");
 				o.setId("");
 				o.setDescription("No Organizations Have Been Configured");
-				TreeNode n = new OrgTreeNode(o);
-				this.orgTree = new TreeModelBase(n);
+				root = new OrgTreeNode(o);
+				this.orgTree = new TreeModelBase(root);
 				this.currentOrg = o;
 				this.currentWorkflows = new ArrayList<WFDescription>();
 			}
+			
+			this.orgTree.getTreeState().expandPath(new String[]{"0"});
+			//this.orgTree.getTreeState().toggleExpanded(root.getIdentifier());
 
 		}
 
